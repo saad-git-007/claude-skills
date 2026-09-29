@@ -106,3 +106,8 @@ were hiring managers who skim, so scroll hijacking and gimmicks were rejected ev
 - `assets/`: `motion-base.css` (tokens + patterns 1-15, incl. once-only entrance, launcher morph, working orb,
   Send/Stop pop; generic class names), `motion-helpers.tsx` (React helpers, with
   credits), `layout.spec.example.ts` (Playwright no-scroll layout test).
+
+## Related skill
+
+How surfaces look at rest (depth ladders, gradients, glass cards, button and card recipes, contrast checks, and a
+gallery of complete themes including this one's "liquid glass") is covered by `web-ui-surfaces`.

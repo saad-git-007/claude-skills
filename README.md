@@ -9,9 +9,10 @@ or hit on one of those projects.
 |---|---|
 | [`web3d-realism-performance`](skills/web3d-realism-performance) | Making a browser 3D scene (three.js, React Three Fiber, CesiumJS, WebGL) look photorealistic while keeping it fast: a measuring workflow (fixed-pose GPU benchmark, image diff, alternating A/B), draw order and overdraw, batching, shader-chunk patches that skip work, baked lighting with Blender Cycles (lightmaps on a second UV set plus a reflection probe), PBR textures, vegetation impostors and glTF optimisation; CAD-accurate models repeated many times (a light copy everywhere, full detail only in close-up, with measured costs), and sharp CesiumJS rendering on phones. Includes the benchmark scripts and a reference lightmap pipeline. |
 | [`web-ui-motion`](skills/web-ui-motion) | A motion and layout system for websites: timing and easing tokens, entrance and scroll reveals, View Transitions, drawer dialogs, nav pills, honest loaders and micro-interactions, all with reduced-motion support; layouts that fit every viewport without scrolling; HTML overlays and camera flights over a 3D canvas; motion in live apps that poll or stream (an AI chat's launcher morph, loading avatar and Send/Stop); browser-test traps that let motion tests pass without testing anything; and a licence-checked review of twelve UI and motion sources. Includes a CSS template, React helpers and a Playwright layout test. |
+| [`web-ui-surfaces`](skills/web-ui-surfaces) | How polished UI looks at rest: depth ladders spaced by measured lightness (light and dark work in opposite directions), wells vs raised controls, gradient rules (px-sized blooms, colour over brightness, contrast checked at the brightest point), dark panels lifted by light, gradient vs frosted glass with measured fills, and recipes for buttons, cards, selected and alert states, stat tiles, segmented controls, fields, badges and tables. Includes a themeable `surfaces.css` (light, dark and four dark panel grounds), a showcase page and a contrast and depth checker. |
 
-The two skills point to each other. The 3D one covers rendering; the motion one covers the interface, including UI
-laid over a 3D scene.
+The skills point to each other. The 3D one covers rendering; the motion one covers how the interface moves,
+including UI laid over a 3D scene; the surfaces one covers how it looks at rest.
 
 ## Install
 
@@ -20,7 +21,7 @@ laid over a 3D scene.
 ```bash
 git clone https://github.com/saad-git-007/claude-skills.git
 mkdir -p ~/.claude/skills
-cp -r claude-skills/skills/web3d-realism-performance claude-skills/skills/web-ui-motion ~/.claude/skills/
+cp -r claude-skills/skills/web3d-realism-performance claude-skills/skills/web-ui-motion claude-skills/skills/web-ui-surfaces ~/.claude/skills/
 ```
 
 For a single project, use `<project>/.claude/skills/` instead.
@@ -37,7 +38,7 @@ skills/<name>/
 ├── SKILL.md       instructions and the when-to-use description (always read first)
 ├── references/    detail Claude reads when the task needs it
 ├── scripts/       runnable tools and reference implementations   (web3d-realism-performance)
-└── assets/        templates to copy into a project               (web-ui-motion)
+└── assets/        templates to copy into a project               (web-ui-motion, web-ui-surfaces)
 ```
 
 The scripts and templates come from those projects. Read them as worked examples and adapt the app hooks, selectors

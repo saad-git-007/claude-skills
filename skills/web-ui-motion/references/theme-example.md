@@ -2,6 +2,8 @@
 
 One project's look, recorded as a worked example of a coherent theme; it is that site's taste. Use it only when a
 user asks for this style or something close (near-future sci-fi, glassy panels, soft glow).
+For surfaces in general (depth, gradient rules, glass with measured fills, component recipes) and more complete
+themes, see the `web-ui-surfaces` skill.
 
 ## Tokens
 

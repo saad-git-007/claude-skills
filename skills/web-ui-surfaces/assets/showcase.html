@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en" data-ground="cosmic">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Surface Showcase</title>
+<script>
+  /* Apply the theme BEFORE the first paint. Set it later and every control's colour transition plays from the
+     light values to the dark ones on each load: a visible fade, and screenshots caught buttons washed out. */
+  (() => {
+    const q = new URLSearchParams(location.search);
+    let saved = null;
+    try { saved = localStorage.getItem('theme'); } catch (e) {}
+    const theme = q.get('theme') || saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.dataset.theme = theme;
+    if (q.get('ground')) document.documentElement.dataset.ground = q.get('ground');
+  })();
+</script>
+<link rel="stylesheet" href="surfaces.css">
+<style>
+  /* Showcase layout only; everything visual comes from surfaces.css. */
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; display: grid; gap: 22px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.01em; }
+  .brand-mark { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--accent), var(--violet));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 6px 16px -6px var(--glow-strong); }
+  .hero { padding: 34px 30px; }
+  .hero h1 { margin: 0; font-size: clamp(28px, 4vw, 42px); line-height: 1.1; letter-spacing: -.025em; max-width: 18ch; }
+  .hero p { margin: 0; color: var(--muted); max-width: 58ch; font-size: 16px; }
+  .eyebrow { font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 22px; align-items: start; }
+  .list { display: grid; gap: 10px; }
+  .card-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .card-row > div { min-width: 0; flex: 1; }
+  .card-row strong { display: block; font-size: 14.5px; }
+  .meta { font-size: 12.5px; color: var(--muted); }
+  .stage { position: relative; border-radius: var(--radius); overflow: hidden; min-height: 300px; padding: 26px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 18px; align-content: center;
+    background:
+      radial-gradient(420px 260px at 18% 20%, #22d3ee 0, transparent 70%),
+      radial-gradient(460px 300px at 85% 30%, #8b5cf6 0, transparent 70%),
+      radial-gradient(520px 320px at 50% 110%, #2563eb 0, transparent 70%), #0b1022; }
+  .stage .panel { padding: 16px 18px; }
+  .stage-label { font-size: 12px; color: var(--muted); }
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+  select.theme { width: auto; min-height: 36px; padding: 6px 10px; }
+  svg { width: 20px; height: 20px; }
+</style>
+</head>
+<body class="ambient">
+<div class="wrap">
+  <header class="bar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span> Northwind</div>
+    <div class="row">
+      <div class="segmented" role="group" aria-label="Theme">
+        <button class="segment" data-theme-choice="light" aria-pressed="true">Light</button>
+        <button class="segment" data-theme-choice="dark" aria-pressed="false">Dark</button>
+      </div>
+      <label class="field" style="grid-auto-flow: column; align-items: center;">Dark ground
+        <select class="select theme" id="ground">
+          <option value="cosmic">Cosmic</option><option value="aurora">Aurora</option>
+          <option value="twilight">Twilight</option><option value="glass-edge">Glass edge</option><option value="flat">Flat</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <section class="panel hero">
+    <span class="eyebrow">Release 4.2</span>
+    <h1>Everything your fleet did today, at a glance.</h1>
+    <p>Live status, alerts and history in one place. Surfaces step apart by measured lightness, gradients stay behind
+      readable text, and every control answers a press.</p>
+    <div class="row">
+      <a class="btn btn-primary has-sheen" href="#">Start free trial
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="btn btn-secondary" href="#">Book a demo</a>
+      <button class="btn btn-primary" disabled>Saving…</button>
+    </div>
+  </section>
+
+  <section class="tiles" aria-label="Summary">
+    <div class="tile tone-accent"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span>
+      <div><span class="tile-value">48 / 53</span><span class="tile-label">Units online</span></div></div>
+    <div class="tile tone-green"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg></span>
+      <div><span class="tile-value">99.2%</span><span class="tile-label">Uptime, 30 days</span></div></div>
+    <div class="tile tone-violet"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></span>
+      <div><span class="tile-value">1.8 s</span><span class="tile-label">Median response</span></div></div>
+    <div class="tile tone-orange"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+      <div><span class="tile-value">3</span><span class="tile-label">Open alerts</span></div></div>
+  </section>
+
+  <div class="cols">
+    <section class="panel is-interactive">
+      <div><h2 class="panel-title">Units <span class="badge badge-count">3</span></h2>
+        <p class="panel-sub">Cards rest on E1 with a top-lit tint; hover glows; alert and selected wash from the edge.</p></div>
+      <div class="list">
+        <div class="card is-interactive"><div class="card-row"><span class="dot tone-green"></span>
+          <div><strong>North ridge</strong><span class="meta">Online · updated 12 s ago</span></div>
+          <span class="badge tone-green">Running</span></div></div>
+        <div class="card is-interactive is-alert"><div class="card-row"><span class="dot tone-orange"></span>
+          <div><strong>River bend</strong><span class="meta">Pressure low · 4 min ago</span></div>
+          <span class="badge tone-orange">Alert</span></div></div>
+        <div class="card is-interactive is-selected"><div class="card-row"><span class="dot tone-accent"></span>
+          <div><strong>East quarter</strong><span class="meta">Selected · online · 3 s ago</span></div>
+          <span class="badge">Viewing</span></div></div>
+        <div class="card is-interactive"><div class="card-row"><span class="dot tone-rose"></span>
+          <div><strong>Old mill road with a very long name that must ellipsise</strong><span class="meta">Offline since 06:40</span></div>
+          <span class="badge tone-rose">Offline</span></div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div><h2 class="panel-title">Settings</h2><p class="panel-sub">Fields are wells; controls you press are raised.</p></div>
+      <label class="field">Display name<input class="input" value="East quarter"></label>
+      <label class="field">Notify<select class="select"><option>Immediately</option><option>Hourly digest</option><option>Never</option></select></label>
+      <div class="field">Range
+        <div class="segmented" role="group" aria-label="Range">
+          <button class="segment" aria-pressed="false">24 h</button><button class="segment" aria-pressed="true">7 days</button><button class="segment" aria-pressed="false">30 days</button>
+        </div></div>
+      <div class="row"><button class="btn btn-primary">Save changes</button><button class="btn btn-secondary">Cancel</button>
+        <button class="btn btn-icon" aria-label="More"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div><h2 class="panel-title">Recent events</h2><p class="panel-sub">Rows never transform; hover is a fill plus an inset bar.</p></div>
+    <div class="scroll"><table class="table">
+      <thead><tr><th>Time</th><th>Unit</th><th>Event</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>09:42</td><td>River bend</td><td>Pressure below 30 psi</td><td><span class="badge tone-orange">Open</span></td></tr>
+        <tr><td>09:10</td><td>North ridge</td><td>Came back online</td><td><span class="badge tone-green">Resolved</span></td></tr>
+        <tr><td>08:55</td><td>Old mill road</td><td>Lost connection</td><td><span class="badge tone-rose">Open</span></td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section class="stage" aria-label="Glass over imagery">
+    <div class="panel glass-edge"><strong>Gradient glass</strong><span class="stage-label">Sheen, luminous edge, lip. No blur: free, works anywhere.</span>
+      <button class="btn btn-secondary">Action</button></div>
+    <div class="panel glass-frost"><strong>Frosted glass</strong><span class="stage-label">Backdrop blur, only over imagery, small, fixed, never animated.</span>
+      <button class="btn btn-primary">Action</button></div>
+  </section>
+</div>
+<script>
+  const root = document.documentElement;
+  const setTheme = (theme) => {
+    /* A user-initiated switch: turn transitions off for one frame so the whole page swaps at once instead of
+       each control fading on its own clock. */
+    root.classList.add('theme-switching');
+    root.dataset.theme = theme;
+    try { localStorage.setItem('theme', theme); } catch (e) {}
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-switching')));
+    document.querySelectorAll('[data-theme-choice]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeChoice === theme)));
+  };
+  document.querySelectorAll('[data-theme-choice]').forEach((b) => b.addEventListener('click', () => setTheme(b.dataset.themeChoice)));
+  const ground = document.getElementById('ground');
+  ground.addEventListener('change', () => { root.dataset.ground = ground.value; });
+  document.querySelectorAll('.segmented[aria-label="Range"] .segment').forEach((b, _, all) => b.addEventListener('click', () =>
+    all.forEach((o) => o.setAttribute('aria-pressed', String(o === b)))));
+  document.querySelectorAll('[data-theme-choice]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeChoice === root.dataset.theme)));
+  ground.value = root.dataset.ground;
+</script>
+</body>
+</html>

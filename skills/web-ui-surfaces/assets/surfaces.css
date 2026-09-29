@@ -1,0 +1,323 @@
+/* surfaces.css: a polished, themeable surface system (light + dark), from a production app whose look was chosen
+   by its owner from rendered variants and checked by contrast tests. Class names are generic: map them onto yours.
+
+   House rules (the why is in ../SKILL.md):
+   - Depth is a LADDER of grounds, spaced by measured OKLCH lightness steps. Light: surfaces step DOWN as they
+     recede. Dark: nesting steps UP. Wells (things you read through) recede; things you press are raised.
+   - Every raised surface splits background-color (its state) from background-image (its tint or gradient).
+     Never use the `background:` shorthand on them in a state rule; it erases the gradient.
+   - Glows are mixed from tokens with color-mix(), so one rule serves both themes.
+   - Gradients are sized in px, never %, and colour carries the pop, not brightness.
+   - Every text colour is checked against the BRIGHTEST point of the gradients behind it (≥ 4.5:1).
+   - On near-black, lift comes from light (rims, inner band, under-glow), not from shadow. */
+
+:root {
+  /* Ladder, light theme. OKLCH L: panel 1.000 > card 0.968 > page 0.948 > well 0.945.
+     The previous 1.05:1 / 1.07:1 steps made cards read as flat. */
+  --page: #e9eef6;
+  --surface: #ffffff;            /* panels, dialogs */
+  --card: #f1f5fa;               /* cards nested in a panel: one step down, plus E1 and a tint */
+  --well: #e8edf5;               /* recessed: inputs, plot areas, segmented tracks, table heads */
+  --line: #dfe6f0;
+  --line-strong: #cbd5e1;        /* control borders: things you press */
+  --text: #0f172a;
+  --muted: #5b6b84;              /* ≥ 4.5:1 on every ground above (4.94 card, 4.60 well, 4.64 page) */
+  --muted-strong: #475569;
+
+  --accent: #2563eb;
+  --accent-deep: #1d4fd8;        /* the far end of the primary button face */
+  --accent-soft: #eaf1ff;
+  --accent-line: rgba(37, 99, 235, 0.35);
+  --on-accent: #ffffff;
+
+  --green: #16a34a;  --green-soft: #e8f8ee;
+  --amber: #d97706;  --amber-soft: #fef3c7;
+  --orange: #f97316; --orange-soft: #fff1e6;
+  --rose: #e11d48;   --rose-soft: #ffe9ee;
+  --violet: #7c3aed; --violet-soft: #f1eaff;
+  --cyan: #0891b2;   --cyan-soft: #e0f7fc;
+  /* A status red that must SAY red at 8-10 px. Rose reads pink that small. Same value in both themes. */
+  --signal-red: #dc2626;
+
+  --shadow-e1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 2px 8px -2px rgba(15, 23, 42, 0.06);   /* resting card */
+  --shadow-e2: 0 6px 18px rgba(15, 23, 42, 0.06);                                         /* panel */
+  --shadow-e3: 0 14px 34px rgba(15, 23, 42, 0.10);                                        /* dialog, popover */
+  --card-tint: linear-gradient(180deg, rgba(255, 255, 255, 0.55), color-mix(in srgb, var(--line) 16%, transparent));
+
+  --glow-strong: color-mix(in srgb, var(--accent) 50%, transparent);
+  --glow-soft: color-mix(in srgb, var(--accent) 22%, transparent);
+  --glow-faint: color-mix(in srgb, var(--accent) 12%, transparent);
+  --shadow-glow: 0 12px 30px -10px var(--glow-soft), 0 0 22px -4px var(--glow-faint);
+  --shadow-glow-compact: 0 4px 12px -3px var(--glow-soft);
+  --focus-ring: 0 0 0 3px var(--glow-soft);
+
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px; --radius-pill: 999px;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+
+  /* Panel ground: flat in light. Dark themes swap in one of the grounds at the end of this file. */
+  --panel-bg: var(--surface);
+  --panel-image: none;
+  --panel-edge: var(--line);
+  --panel-shadow: var(--shadow-e2);
+  color-scheme: light;
+}
+
+/* Dark theme: same contract, different values. Nesting steps UP in lightness (~0.09 then ~0.06 OKLCH L);
+   the old ~0.04 steps made cards invisible. Ambient shadows vanish on near-black: contact shadows only. */
+:root[data-theme="dark"] {
+  --page: #050810;
+  --surface: #121b2e;
+  --card: #1e2a45;
+  --well: #1e2a45;               /* same as --card on purpose: in dark, a well inside a card steps up too */
+  --line: #32415f;
+  --line-strong: #354667;
+  --text: #e7edf8;
+  --muted: #90a2bd;
+  --muted-strong: #b8c6dc;
+  --accent: #6c9aff;
+  --accent-deep: #4a7ef5;         /* dark text on it stays ≥ 5:1 (at #3f74f0 it was 4.45:1) */
+  --accent-soft: #1c2c50;
+  --accent-line: rgba(108, 154, 255, 0.45);
+  --on-accent: #06102a;
+  --green: #34c273;  --green-soft: #123322;
+  --amber: #eeb04a;  --amber-soft: #3b2c11;
+  --orange: #fb923c; --orange-soft: #3d2512;
+  --rose: #f66086;   --rose-soft: #3d1826;
+  --violet: #ab8ffc; --violet-soft: #2b224a;
+  --cyan: #33c4de;   --cyan-soft: #0f313b;
+  --shadow-e1: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-e2: 0 6px 18px rgba(0, 0, 0, 0.4);
+  --shadow-e3: 0 14px 34px rgba(0, 0, 0, 0.55);
+  --card-tint: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 55%);
+  --glow-strong: color-mix(in srgb, var(--accent) 62%, transparent);
+  --glow-soft: color-mix(in srgb, var(--accent) 30%, transparent);
+  --glow-faint: color-mix(in srgb, var(--accent) 16%, transparent);
+  --panel-bg: var(--surface);
+  --panel-edge: var(--line);
+  --panel-shadow: var(--shadow-e2);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+* { -webkit-tap-highlight-color: transparent; }   /* only because every control below has its own press state */
+body { margin: 0; background: var(--page); color: var(--text);
+  font: 15px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; }
+
+/* ── Panel: the big raised surface ─────────────────────────────────────────────────────────────── */
+.panel {
+  background-color: var(--panel-bg);
+  background-image: var(--panel-image);
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius);
+  box-shadow: var(--panel-shadow);
+  padding: 20px 22px;
+  display: grid; gap: 16px; align-content: start;
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.panel-title { display: flex; align-items: center; gap: 9px; margin: 0; font-size: 17px; letter-spacing: -.01em; }
+.panel-sub { margin: 3px 0 0; font-size: 13.5px; color: var(--muted); }
+
+/* ── Card: nested in a panel. Resting E1 + a top-lit tint; hover promotes to a glow. ────────────── */
+.card {
+  background-color: var(--card);
+  background-image: var(--card-tint);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-e1);
+  padding: 12px 14px;
+  transition: border-color .15s ease, box-shadow .2s ease, translate .26s var(--ease-spring);
+}
+.card.is-interactive { cursor: pointer; }
+@media (hover: hover) {
+  .card.is-interactive:hover { border-color: var(--accent); background-color: var(--surface);
+    box-shadow: var(--shadow-glow-compact), inset 0 0 0 1px var(--glow-faint); translate: 0 -1px; }
+}
+/* Attention: a warm wash from the left edge. Selected wins ties because it comes later. */
+.card.is-alert {
+  border-color: color-mix(in srgb, var(--orange) 45%, var(--line));
+  background-image: linear-gradient(90deg, var(--orange-soft), transparent 55%);
+}
+/* Selected: an accent bar plus a NARROW bloom from it. At 60% width the bloom sat under the meta text and dragged
+   --muted to 3.85:1; ending it at 12% keeps the text zone ≥ 4.5:1. */
+.card.is-selected {
+  border-color: var(--accent);
+  background-color: var(--accent-soft);
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent 12%);
+  box-shadow: inset 3px 0 0 var(--accent), var(--shadow-e1);
+}
+
+/* ── Stat tile: an icon chip in its tone, and a whisper of that tone across the face. ──────────── */
+.tile { display: flex; align-items: center; gap: 13px; padding: 16px 18px; border-radius: var(--radius);
+  border: 1px solid var(--line); background-color: var(--surface); box-shadow: var(--shadow-e2); min-width: 0; }
+.tile > div { min-width: 0; }
+.tile-icon { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: var(--radius-sm); }
+.tile-value { display: block; font-size: 22px; font-weight: 650; letter-spacing: -.02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-label { font-size: 13px; color: var(--muted); }
+.tone-accent { --tone: var(--accent); --tone-soft: var(--accent-soft); }
+.tone-green  { --tone: var(--green);  --tone-soft: var(--green-soft); }
+.tone-violet { --tone: var(--violet); --tone-soft: var(--violet-soft); }
+.tone-orange { --tone: var(--orange); --tone-soft: var(--orange-soft); }
+.tone-rose   { --tone: var(--rose);   --tone-soft: var(--rose-soft); }
+.tile[class*="tone-"] { background-image: linear-gradient(135deg, var(--tone-soft), transparent 65%); }
+.tile[class*="tone-"] .tile-icon { background: var(--tone-soft); color: var(--tone); }
+
+/* ── Buttons ───────────────────────────────────────────────────────────────────────────────────── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px;
+  font: inherit; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; text-decoration: none;
+  transition: translate .26s var(--ease-spring), scale .26s var(--ease-spring), box-shadow .2s ease,
+    border-color .15s ease, color .15s ease, background-color .15s ease; }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn:active:not(:disabled) { transition-duration: 70ms; }
+
+/* Primary: a diagonal face gradient in the brand hue, and a shadow TINTED with it (a grey shadow under a
+   saturated button looks dirty). Hover lifts; press sinks INTO the page and the shadow collapses with it. */
+.btn-primary { position: relative; overflow: hidden; border: 0; padding: 10px 18px; color: var(--on-accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+  box-shadow: 0 10px 22px -6px color-mix(in srgb, var(--accent) 60%, transparent), inset 0 1px 0 rgba(255,255,255,.22); }
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) { translate: 0 -1px;
+    box-shadow: 0 12px 26px -6px color-mix(in srgb, var(--accent) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.26); }
+}
+.btn-primary:active:not(:disabled) { translate: 0; scale: .98; box-shadow: 0 3px 10px -2px var(--glow-strong); }
+/* One diagonal sheen on hover, on the ONE primary action per view. On every control it reads as glitter. */
+.btn-primary.has-sheen::after { content: ""; position: absolute; inset: 0; pointer-events: none; translate: -130% 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.45) 50%, transparent 65%); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .btn-primary.has-sheen:hover::after { animation: sheen .6s var(--ease-out); }
+}
+@keyframes sheen { to { translate: 130% 0; } }
+
+/* Secondary ("ghost"): control chrome = surface + tint + the STRONG line. Not a well: a recessed button looks
+   disabled. Its press recesses instantly, because a button that navigates never shows its spring-back. */
+.btn-secondary { padding: 8px 14px; font-weight: 550; color: var(--muted-strong);
+  border: 1px solid var(--line-strong); background-color: var(--surface); background-image: var(--card-tint); }
+@media (hover: hover) {
+  .btn-secondary:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); box-shadow: var(--shadow-glow-compact); }
+}
+.btn-secondary:active:not(:disabled) { background-color: var(--well); border-color: var(--accent-line); scale: .98; }
+
+.btn-icon { width: 40px; padding: 0; border: 1px solid var(--line-strong); color: var(--muted-strong);
+  background-color: var(--surface); background-image: var(--card-tint); }
+@media (hover: hover) { .btn-icon:hover { color: var(--accent); border-color: var(--accent); } }
+.btn-icon:active { scale: .94; }
+
+/* Disabled must LOOK inert, or a slow request reads as a click that did nothing and invites a second one. */
+.btn:disabled { opacity: .55; cursor: default; translate: none; scale: none; box-shadow: none; }
+
+/* ── Segmented control: a well track with a raised pill ────────────────────────────────────────── */
+.segmented { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-pill);
+  border: 1px solid var(--line); background: var(--well); }
+.segment { border: 0; padding: 7px 15px; border-radius: var(--radius-pill); font: inherit; font-size: 13.5px;
+  font-weight: 550; color: var(--muted-strong); background: transparent; cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, box-shadow .2s ease; }
+.segment[aria-pressed="true"] { background: var(--accent); color: var(--on-accent);
+  box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--accent) 55%, transparent); }
+.segment:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ── Fields: wells. Focus is a ring, instant, never animated. 16 px text stops iOS zooming in. ─── */
+.field { display: grid; gap: 6px; font-size: 13px; font-weight: 550; color: var(--muted-strong); }
+.input, .select { width: 100%; min-height: 40px; padding: 9px 12px; font: inherit; font-size: 15px; color: var(--text);
+  background: var(--well); border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.input::placeholder { color: var(--muted); }
+.input:focus, .select:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+/* Chrome on Windows/Linux draws a WHITE popup for a select with a transparent or dark face while options inherit
+   light text. Give options their own colours. */
+select option, select optgroup { background-color: var(--surface); color: var(--text); }
+@media (max-width: 720px) { .input, .select { font-size: 16px; } }
+
+/* ── Badges ────────────────────────────────────────────────────────────────────────────────────── */
+.badge { display: inline-flex; white-space: nowrap; align-items: center; gap: 5px; padding: 2px 9px; border-radius: var(--radius-pill);
+  font-size: 12px; font-weight: 600; background: var(--tone-soft, var(--accent-soft)); color: var(--tone, var(--accent)); }
+.badge-count { min-width: 20px; justify-content: center; padding: 1px 6px; color: #fff; background: var(--signal-red); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tone, var(--accent));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone, var(--accent)) 22%, transparent); }
+
+/* ── Tables: never transform rows (sticky heads, scrollers). Hover = background + an inset accent bar. */
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th { position: sticky; top: 0; z-index: 1; background: var(--well); color: var(--muted-strong);
+  font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: .04em; text-align: left; padding: 9px 12px; }
+.table td { padding: 10px 12px; border-top: 1px solid var(--line); }
+@media (hover: hover) { .table tbody tr:hover { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); } }
+
+/* ── Glass ─────────────────────────────────────────────────────────────────────────────────────── */
+/* Gradient glass: no blur. Works on any background and costs nothing: a top sheen, a luminous edge, a lip. */
+.glass-edge {
+  background-color: color-mix(in srgb, var(--surface) 92%, transparent);
+  background-image: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 90px);
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--line));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.25), var(--shadow-e2);
+}
+/* Frosted glass: only over something worth blurring (imagery, a 3D canvas, a colourful ambient), only on small,
+   fixed panels, never animated. Blur averages the backdrop but does not darken or lighten it: over a saturated
+   violet bloom a 58% fill left muted text at 3.1:1 (light) and 3.8:1 (dark). A 72% fill plus --muted-strong for
+   secondary text measures 5.3:1 and 7.1:1. The fallback is an opaque fill, so text stays readable without support. */
+.glass-frost { --muted: var(--muted-strong);
+  background: color-mix(in srgb, var(--surface) 94%, transparent); border: 1px solid rgba(255,255,255,.22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 8px 32px rgba(0,8,50,.2); }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-frost { background: color-mix(in srgb, var(--surface) 72%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(145%); backdrop-filter: blur(18px) saturate(145%); }
+}
+
+/* ── Dark panel grounds. Pick ONE per product with data-ground on <html>; each keeps --muted ≥ 4.5:1 at its
+   brightest point (check_contrast.py). All sizes are px so the light stays in the corners on any panel height. ── */
+/* Cosmic (the owner's pick): violet bloom top-right, cyan bloom bottom-left, ink-navy base, glass lift. The base
+   is only ~0.04 OKLCH L off the page, so the panel stands off by LIGHT: top rim, inner light band, dark bottom rim,
+   luminous lip, indigo under-glow. Remove any part and it sinks into the page. */
+:root[data-theme="dark"][data-ground="cosmic"] {
+  --panel-bg: #0b1022;
+  --panel-image:
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 110px),
+    radial-gradient(520px 320px at 100% 0%, rgba(139,92,246,.22), transparent 70%),
+    radial-gradient(560px 360px at 0% 100%, rgba(34,211,238,.15), transparent 70%),
+    linear-gradient(180deg, #0c1124, #0a0f20);
+  --panel-edge: rgba(140,150,250,.44);
+  --panel-shadow:
+    inset 0 1px 0 rgba(255,255,255,.26), inset 0 14px 22px -16px rgba(170,195,255,.22),
+    inset 0 -1px 0 rgba(0,0,0,.45), inset 1px 0 0 rgba(255,255,255,.06), inset -1px 0 0 rgba(255,255,255,.06),
+    0 2px 0 -1px rgba(160,190,255,.14), 0 26px 50px -18px rgba(0,0,0,.9), 0 18px 42px -16px rgba(99,102,241,.42);
+}
+/* Aurora: a blue glow top-left and a teal glow bottom-right over deep navy. */
+:root[data-theme="dark"][data-ground="aurora"] {
+  --panel-bg: #0b1428;
+  --panel-image:
+    radial-gradient(560px 320px at 0% 0%, rgba(59,130,246,.24), transparent 70%),
+    radial-gradient(560px 360px at 100% 100%, rgba(20,184,166,.18), transparent 70%);
+  --panel-edge: rgba(96,165,250,.34);
+  --panel-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 18px 40px -18px rgba(0,0,0,.85);
+}
+/* Twilight: one strong diagonal from indigo to ink. */
+:root[data-theme="dark"][data-ground="twilight"] {
+  --panel-bg: #0a0e1f;
+  --panel-image: linear-gradient(135deg, #1e2a66 0, #111737 260px, #080c1c 620px);
+  --panel-edge: rgba(129,140,248,.34);
+  --panel-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 18px 40px -18px rgba(0,0,0,.85);
+}
+/* Glass edge: navy falling to ink, a glassy top sheen and a luminous edge. The calmest of the set. */
+:root[data-theme="dark"][data-ground="glass-edge"] {
+  --panel-bg: #0b1226;
+  --panel-image: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0) 90px), linear-gradient(180deg, #16244a, #0b1226 420px);
+  --panel-edge: rgba(147,197,253,.38);
+  --panel-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.4), 0 2px 0 -1px rgba(147,197,253,.12),
+    0 20px 44px -18px rgba(0,0,0,.85);
+}
+/* Hover restates the ground's own lift plus the accent glow, so a lifted panel still responds. */
+@media (hover: hover) {
+  .panel.is-interactive:hover { border-color: color-mix(in srgb, var(--accent) 60%, var(--panel-edge));
+    box-shadow: var(--panel-shadow), var(--shadow-glow); }
+}
+
+/* ── Ambient page light: one or two very large, very faint blooms behind everything, fixed. ─────── */
+.ambient { background-image:
+  radial-gradient(1100px 620px at 12% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%),
+  radial-gradient(900px 560px at 110% 10%, color-mix(in srgb, var(--violet) 7%, transparent), transparent 70%);
+  background-attachment: fixed; }
+
+/* Theme switches swap in one frame: the page adds .theme-switching for two frames around the change. */
+.theme-switching *, .theme-switching *::before, .theme-switching *::after { transition: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
