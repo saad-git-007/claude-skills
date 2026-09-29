@@ -1,0 +1,104 @@
+/* Motion system template. Load it last. Class names are placeholders: map them onto the project's own.
+   House rules:
+   - Base styles are the finished, visible state. Hidden "from" states live only in keyframes or inside
+     (prefers-reduced-motion: no-preference), so reduced motion, old browsers and print show the final interface.
+   - Entrances fill `backwards`, never `forwards`, so an element's own hover transform still works afterwards.
+   - Use the individual `translate` / `scale` properties for entrances, so they never fight an element's `transform`.
+   - Over a WebGL canvas only transform/translate/scale and opacity move: no animated blur, shadow, filter or layout.
+   - Nothing decorative loops (WCAG 2.2.2: motion longer than 5 s needs a pause control). A loader may loop until
+     the load ends.
+   - Exits are faster than entrances. Linear easing only for things that measure time (progress). */
+:root{
+ --ease-out:cubic-bezier(.16,1,.3,1);          /* strong ease-out: entrances, reveals, pills */
+ --ease-in-out:cubic-bezier(.77,0,.175,1);     /* sheens, exits, attention */
+ --ease-drawer:cubic-bezier(.32,.72,0,1);      /* drawers and sheets (Emil Kowalski's curve) */
+ --t-press:120ms;--t-hover:150ms;--t-state:200ms;--t-panel:380ms;--t-reveal:620ms;
+}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+
+@keyframes rise-in{from{opacity:0;translate:0 14px}}
+@keyframes word-in{from{opacity:0;translate:0 .42em}}
+@keyframes sheen{from{translate:-130% 0}to{translate:130% 0}}
+@keyframes arrow-nudge{45%{translate:2px -2px}}
+@keyframes ping{from{opacity:.55;scale:1}to{opacity:0;scale:2.3}}
+@keyframes dither{0%,100%{opacity:.16}50%{opacity:1}}
+
+/* 1. Hero: one orchestrated entrance. Headline words via <Words> (motion-helpers.tsx), each with --i. */
+.hero .eyebrow{animation:rise-in var(--t-reveal) var(--ease-out) backwards}
+.word{display:inline-block}
+.hero .word{animation:word-in .8s var(--ease-out) backwards;animation-delay:calc(90ms + var(--i)*70ms)}
+.hero p:not(.eyebrow){animation:rise-in .7s var(--ease-out) .44s backwards}
+.hero .cta{animation:rise-in .7s var(--ease-out) .54s backwards}
+
+/* 2. Reveal once on scroll: useReveal() sets data-revealed and a staggered --reveal-delay. */
+@media (prefers-reduced-motion:no-preference){
+ [data-reveal]{transition:opacity var(--t-reveal) var(--ease-out) var(--reveal-delay,0ms),translate var(--t-reveal) var(--ease-out) var(--reveal-delay,0ms)}
+ [data-reveal]:not([data-revealed]){opacity:0;translate:0 18px}
+}
+@media print{[data-reveal]{opacity:1!important;translate:none!important}}
+
+/* 3. Native <details> that grows open (progressive: only where the browser can interpolate to `auto`). */
+@media (prefers-reduced-motion:no-preference){
+ @supports (interpolate-size:allow-keywords){
+  details.grow{interpolate-size:allow-keywords}
+  details.grow::details-content{block-size:0;overflow:clip;opacity:0;transition:block-size .5s var(--ease-out),opacity .3s ease,content-visibility .5s allow-discrete}
+  details.grow[open]::details-content{block-size:auto;opacity:1}
+ }
+}
+details.grow[open] .card{animation:rise-in .5s var(--ease-out) backwards;animation-delay:calc(80ms + var(--i,0)*70ms)}
+
+/* 4. The one call to action gets the one attention effect: two sheen passes after load, then on hover/focus only. */
+.cta{position:relative;overflow:hidden}
+.cta::after{content:'';position:absolute;inset:0;pointer-events:none;translate:-130% 0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.75) 50%,transparent 65%);animation:sheen 1.15s var(--ease-in-out) 1.3s 2}
+.cta:is(:hover,:focus-visible)::after{animation:sheen .9s var(--ease-in-out) 1}
+
+/* 5. View Transition: the new view opens as a circle from the pressed control (transitionView() in the helpers).
+   Never when the OLD view contains a live WebGL canvas: the snapshot takes seconds. */
+html[data-vt=enter]::view-transition-old(root){animation:none;mix-blend-mode:normal}
+html[data-vt=enter]::view-transition-new(root){mix-blend-mode:normal;animation:vt-open .72s cubic-bezier(.4,0,.2,1)}
+@keyframes vt-open{from{clip-path:circle(0% at var(--vt-origin,50% 50%))}to{clip-path:circle(150% at var(--vt-origin,50% 50%))}}
+@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+
+/* 6. Staggered arrival of a re-mounted block (captions, dialog contents) in reading order. */
+.stagger>*{animation:rise-in .46s var(--ease-out) backwards}
+.stagger>:nth-child(2){animation-delay:50ms}
+.stagger>:nth-child(3){animation-delay:100ms}
+.stagger>:nth-child(4){animation-delay:150ms}
+.stagger>:nth-child(n+5){animation-delay:200ms}
+
+/* 7. Segmented nav: one pill glides to the active item. Set --count and --active on the nav. */
+.seg-nav{position:relative;display:grid;grid-template-columns:repeat(var(--count,5),1fr)}
+.seg-nav button{position:relative;z-index:1}
+.seg-pill{position:absolute;z-index:0;inset-block:4px;left:0;width:calc(100%/var(--count,5));border-radius:9px;pointer-events:none;translate:calc(var(--active,0)*100%) 0;transition:translate var(--t-panel) var(--ease-out);background:color-mix(in srgb,currentColor 14%,transparent)}
+
+/* 8. Progress: scale, not width; linear because it measures time or work. Drive it from real progress. */
+.progress>span{display:block;height:100%;transform-origin:left center;transform:scaleX(var(--p,0));transition:transform .4s var(--ease-out)}
+.loader-dots{display:grid;grid-template-columns:repeat(4,7px);gap:3px}
+.loader-dots i{width:7px;height:7px;border-radius:2px;background:currentColor;opacity:.55;animation:dither 1.5s var(--ease-in-out) infinite;animation-delay:calc(var(--o)/16*1.5s)}
+
+/* 9. Selected marker: three soft pings, then rest. */
+.marker.selected::after{content:'';position:absolute;inset:-1px;border-radius:50%;border:1px solid currentColor;pointer-events:none;opacity:0;animation:ping 1.7s var(--ease-out) 3}
+
+/* 10. <dialog> as a drawer: slides in, leaves faster than it arrived (where the browser can animate the top layer). */
+@media (prefers-reduced-motion:no-preference){
+ @supports (transition-behavior:allow-discrete){
+  dialog.drawer{translate:100% 0;opacity:.4;transition:translate .24s var(--ease-in-out),opacity .2s ease,overlay .24s allow-discrete,display .24s allow-discrete}
+  dialog.drawer[open]{translate:0 0;opacity:1;transition:translate var(--t-panel) var(--ease-drawer),opacity .3s ease,overlay var(--t-panel) allow-discrete,display var(--t-panel) allow-discrete}
+  @starting-style{dialog.drawer[open]{translate:100% 0;opacity:.4}}
+  dialog.drawer::backdrop{opacity:0;transition:opacity .22s ease,overlay .22s allow-discrete,display .22s allow-discrete}
+  dialog.drawer[open]::backdrop{opacity:1;transition-duration:.3s}
+  @starting-style{dialog.drawer[open]::backdrop{opacity:0}}
+ }
+}
+
+/* 11. Micro-interactions: press is firmer and faster than hover; `scale` leaves the control's own transform alone. */
+.btn{transition-property:color,background-color,border-color,box-shadow,transform,scale;transition-duration:var(--t-state);transition-timing-function:ease}
+.btn:active{scale:.97;transition-duration:var(--t-press)}
+@media (hover:hover) and (pointer:fine){
+ .btn:hover svg:last-child{animation:arrow-nudge .52s var(--ease-out)}   /* arrow icons hint where the control leads */
+ .card-link{transition:translate var(--t-state) var(--ease-out),border-color var(--t-state) ease}
+ .card-link:hover{translate:0 -2px}
+}
+
+/* Safety net: switch everything off under reduced motion (keep this in the base stylesheet too). */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}

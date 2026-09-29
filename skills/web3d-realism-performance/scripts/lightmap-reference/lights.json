@@ -1,0 +1,31 @@
+{
+  "note": "Light rig for bake.py. Natural = sun + sky (the sky is src/landscape.ts skyColor without its sun disc). Lamps = the room's point lights (from the scene), the desk lamp, every self-lit surface, and the optional cove light (off, see its note). Strengths are in three.js units (irradiance / candela); emitter gains multiply a surface's own emission for the bake only.",
+  "sun": {
+    "strength": 6.0,
+    "color": [1.0, 0.66, 0.4],
+    "angle": 0.8
+  },
+  "sky": {
+    "strength": 1.0
+  },
+  "pointLights": {
+    "gain": 1.0,
+    "radius": 0.35,
+    "smallRadius": 0.05
+  },
+  "emitters": [
+    {
+      "near": [2.4, 1.34, 0.61],
+      "gain": 12,
+      "note": "warm light bars under the station signs, as the stations' task lights"
+    }
+  ],
+  "cove": {
+    "radius": 11.22,
+    "height": 5.5,
+    "tube": 0.03,
+    "strength": 0,
+    "color": [0.86, 0.93, 1.0],
+    "note": "off (strength 0): a hidden light ring behind the ring beam's inner reveal washed out the eave soffit's own lights and left blotches on the metal band beside it"
+  }
+}
