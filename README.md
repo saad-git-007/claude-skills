@@ -1,13 +1,14 @@
 # Claude skills
 
 [Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) for Claude Code and claude.ai,
-distilled from building a three.js portfolio site. Every rule, number and pitfall in
-them was measured or hit on that project.
+distilled from building a three.js portfolio site and a production operations dashboard (a live map, a CesiumJS 3D
+view and a streaming AI chat, used on desktops and field phones). Every rule, number and pitfall in them was measured
+or hit on one of those projects.
 
 | Skill | What it gives Claude |
 |---|---|
-| [`web3d-realism-performance`](skills/web3d-realism-performance) | Making a browser 3D scene (three.js, React Three Fiber, WebGL) look photorealistic while keeping it fast: a measuring workflow (fixed-pose GPU benchmark, image diff, alternating A/B), draw order and overdraw, batching, shader-chunk patches that skip work, baked lighting with Blender Cycles (lightmaps on a second UV set plus a reflection probe), PBR textures, vegetation impostors and glTF optimisation. Includes the benchmark scripts and a reference lightmap pipeline. |
-| [`web-ui-motion`](skills/web-ui-motion) | A motion and layout system for websites: timing and easing tokens, entrance and scroll reveals, View Transitions, drawer dialogs, nav pills, honest loaders and micro-interactions, all with reduced-motion support; layouts that fit every viewport without scrolling; HTML overlays and camera flights over a 3D canvas; and a licence-checked review of twelve UI and motion sources. Includes a CSS template, React helpers and a Playwright layout test. |
+| [`web3d-realism-performance`](skills/web3d-realism-performance) | Making a browser 3D scene (three.js, React Three Fiber, CesiumJS, WebGL) look photorealistic while keeping it fast: a measuring workflow (fixed-pose GPU benchmark, image diff, alternating A/B), draw order and overdraw, batching, shader-chunk patches that skip work, baked lighting with Blender Cycles (lightmaps on a second UV set plus a reflection probe), PBR textures, vegetation impostors and glTF optimisation; CAD-accurate models repeated many times (a light copy everywhere, full detail only in close-up, with measured costs), and sharp CesiumJS rendering on phones. Includes the benchmark scripts and a reference lightmap pipeline. |
+| [`web-ui-motion`](skills/web-ui-motion) | A motion and layout system for websites: timing and easing tokens, entrance and scroll reveals, View Transitions, drawer dialogs, nav pills, honest loaders and micro-interactions, all with reduced-motion support; layouts that fit every viewport without scrolling; HTML overlays and camera flights over a 3D canvas; motion in live apps that poll or stream (an AI chat's launcher morph, loading avatar and Send/Stop); browser-test traps that let motion tests pass without testing anything; and a licence-checked review of twelve UI and motion sources. Includes a CSS template, React helpers and a Playwright layout test. |
 
 The two skills point to each other. The 3D one covers rendering; the motion one covers the interface, including UI
 laid over a 3D scene.
@@ -39,7 +40,7 @@ skills/<name>/
 └── assets/        templates to copy into a project               (web-ui-motion)
 ```
 
-The scripts and templates come from one project. Read them as worked examples and adapt the app hooks, selectors
+The scripts and templates come from those projects. Read them as worked examples and adapt the app hooks, selectors
 and names to yours.
 
 ## Credits

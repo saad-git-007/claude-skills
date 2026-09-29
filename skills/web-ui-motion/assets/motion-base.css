@@ -100,5 +100,50 @@ html[data-vt=enter]::view-transition-new(root){mix-blend-mode:normal;animation:v
  .card-link:hover{translate:0 -2px}
 }
 
+/* 12. Live apps (polling, streaming): items that arrive ONCE. Hiding an element (display:none) cancels its animations
+   and showing it replays them, so never bind an entrance to a structural selector inside a re-shown container.
+   JS adds .fresh when it creates the item and removes it when all its entrances finish (live-app-patterns.md §1). */
+.feed>.item.fresh{animation:rise-in .2s var(--ease-out) backwards}
+
+/* 13. Launcher -> panel morph, no measuring: the panel's right edge is the launcher's, its bottom sits --dock + --gap
+   above the launcher's bottom, so a translated, clipped circle of the panel IS the launcher. Clip-path, not a View
+   Transition (that freezes live content and duplicates the launcher). No spring on the shape. A linear veil in the
+   launcher's colour covers the first ~70% so the growing shell never reads as an empty white box. */
+.morph-panel{position:fixed;right:var(--gap);bottom:calc(var(--gap) + var(--dock) + var(--gap));
+ --mx:0px;--my:calc(var(--dock) + var(--gap));--mc:calc(100% - var(--dock));
+ --closed:inset(var(--mc) 0 0 var(--mc) round calc(var(--dock)/2));--open:inset(-64px round 80px)}
+@keyframes morph-open{from{transform:translate(var(--mx),var(--my));clip-path:var(--closed)}to{transform:none;clip-path:var(--open)}}
+@keyframes morph-close{from{transform:none;clip-path:var(--open)}to{transform:translate(var(--mx),var(--my));clip-path:var(--closed)}}
+@keyframes veil-out{from{opacity:1}70%,to{opacity:0}}
+.morph-panel:not([hidden]){animation:morph-open .3s var(--ease-out) backwards}
+.morph-panel::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;background:var(--launcher-bg,currentColor)}
+.morph-panel:not([hidden])::after{animation:veil-out .3s linear backwards}
+.morph-panel:not([hidden])>*{animation:rise-in .18s var(--ease-out) backwards;animation-delay:calc(40ms + var(--i,0)*20ms)}
+.morph-panel.closing{animation:morph-close .19s var(--ease-in-out) forwards}   /* JS: inert + hold `hidden` off for 190 ms */
+@media (max-height:540px){.morph-panel{--mx:calc(var(--dock) + var(--gap));--my:0px}}   /* docked beside the launcher */
+
+/* 14. The avatar IS the loading indicator: still at rest, swirls + breathes only while the answer streams.
+   Radial blobs, not a conic sweep (a conic centre reads as a pinwheel seam at ~22 px). */
+.orb{--s:22px;position:relative;width:var(--s);height:var(--s);border-radius:50%;overflow:hidden;isolation:isolate;
+ background:radial-gradient(circle at 72% 80%,var(--c3,#8b5cf6) 0,transparent 60%),radial-gradient(circle at 22% 68%,var(--c2,#22d3ee) 0,transparent 62%),radial-gradient(circle at 50% 28%,var(--c1,#2563eb) 0,#0b1022 100%)}
+.orb::before{content:'';position:absolute;inset:-15%;border-radius:50%;opacity:.5;background:radial-gradient(circle at 28% 30%,#fff8 0,transparent 42%),radial-gradient(circle at 74% 70%,#fff6 0,transparent 44%)}
+.orb::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 34% 26%,#fffe 0,#fff4 16%,transparent 42%)}
+@keyframes orb-swirl{to{rotate:1turn}}
+@keyframes orb-breathe{50%{scale:1.1}}
+.streaming>.orb{animation:orb-breathe 1.6s ease-in-out infinite}
+.streaming>.orb::before{opacity:.95;animation:orb-swirl 1.2s linear infinite}
+
+/* 15. Send and Stop share one cell; each pops in as it takes the spot. Send's return is a class (.popping) removed on
+   ITS animationend (check event.animationName: two animations run), not :not([hidden]), which replays on panel open. */
+@keyframes pop-scale{from{scale:.6;rotate:-45deg}}
+@keyframes fade-in{from{opacity:0}}
+.composer .stop:not([hidden]),.composer .send.popping{animation:pop-scale .28s var(--ease-out) backwards,fade-in .12s var(--ease-out) backwards}
+
+@media (prefers-reduced-motion:reduce){
+ .morph-panel:not([hidden]),.morph-panel:not([hidden])::after,.orb,.orb::before{animation:none!important}
+ .streaming>.orb::before{opacity:.95}                 /* the state still shows, without motion */
+ .morph-panel:not([hidden])>*{animation-delay:0s!important}   /* the clamp below shortens durations, NOT delays */
+}
+
 /* Safety net: switch everything off under reduced motion (keep this in the base stylesheet too). */
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}

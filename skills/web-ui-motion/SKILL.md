@@ -1,6 +1,6 @@
 ---
 name: web-ui-motion
-description: A tested motion and layout system for websites and web apps, covering timing and easing tokens, entrance and scroll reveals, View Transitions, drawers, segmented-nav pills, honest loading progress, micro-interactions, reduced-motion handling, no-scroll layouts that fit every viewport, and HTML overlays and camera flights over a 3D (WebGL/three.js) canvas. Includes a vetted review of twelve UI and motion sources (beui.dev, bencho.dev, aura.build, open-design.ai, typeui.sh and others) with their licences. Use this whenever the user wants to add or polish animations, transitions, hover or press effects, page or view transitions, scroll effects, loaders, a more "premium" or "alive" feel, or wants UI inspiration from component libraries or design galleries, or has layout problems on phones, short laptop screens or landscape, or builds UI over a 3D scene, even if they don't say "motion".
+description: A tested motion and layout system for websites and web apps: timing and easing tokens, entrance and scroll reveals, View Transitions, drawers, gliding pills, honest loaders, micro-interactions, reduced motion, layouts that fit every viewport, UI over a 3D (WebGL/three.js) canvas, motion in live apps that poll or stream (dashboards, AI chat: launcher morph, loading avatar, Send/Stop, citations), and browser-test traps that let motion tests pass without testing. Includes a licence-checked review of twelve UI sources (beui.dev, bencho.dev, aura.build and others). Use whenever the user wants to add or polish animations, transitions, hover or press effects, loaders, a more "premium" or "alive" feel, UI inspiration from component libraries, a chat or assistant panel, or has layout problems on phones, short screens or landscape, or flaky or suspiciously green UI tests, even if they don't say "motion".
 ---
 
 # Web UI motion and layout
@@ -9,6 +9,10 @@ Distilled from building a portfolio site with a readable résumé page and a ful
 and component sites were reviewed, their techniques ported to plain CSS plus four small React helpers (about 3 KB, no
 packages), and the result was tested at many viewport sizes and with reduced motion. The main lesson: good motion is a
 small, consistent system with a few rules, not a collection of effects. The details below make it repeatable.
+
+A second project added what a one-off site never shows: an operations dashboard that re-renders every 10 s (map,
+3D view, charts) with a streaming AI chat, about 170 browser tests, and phones in daily field use. Its lessons are in
+`references/live-app-patterns.md` and `references/testing-motion.md`.
 
 ## First, decide what motion is for
 
@@ -40,6 +44,12 @@ were hiring managers who skim, so scroll hijacking and gimmicks were rejected ev
    the fallback the plain, instant version.
 8. **Keep the native elements.** `<dialog>` and `<details>` give focus handling and accessibility that library
    replacements reviewed here did worse.
+9. **In a live app, nothing replays by accident.** Re-renders, re-applied classes and `display: none` → shown all
+   restart CSS animations. Bind entrances to static wrappers or a `.fresh` class that is removed once they have played,
+   and pulse on changed *values*, never on render events.
+10. **Opaque from the first frame.** A panel, menu or drawer that grows while its content is still transparent shows
+   an empty box for 60-90 ms. Reveal with `clip-path` and never fade the shell. Cover late content with a linear veil,
+   and film the transition at 0.1× speed before calling it done.
 
 ## Workflow
 
@@ -53,7 +63,9 @@ were hiring managers who skim, so scroll hijacking and gimmicks were rejected ev
    licences allow reuse, and why porting the technique usually beats installing the library.
 5. Check layout at real sizes (`references/layout-and-3d.md`): short laptop windows and landscape phones break more
    often than narrow phones. Automate it (`assets/layout.spec.example.ts`).
-6. Test with reduced motion on, and look at the result in a browser. Send the user screenshots or a short video of
+6. Test with reduced motion on, and look at the result in a browser. Before trusting a green run, read
+   `references/testing-motion.md`: headless Chrome turns off every hover rule, and a skipped browser class can
+   still report OK. Send the user screenshots or a short video of
    anything they will judge by eye.
 
 ## Rejected, and why (so it doesn't get re-proposed)
@@ -68,6 +80,12 @@ were hiring managers who skim, so scroll hijacking and gimmicks were rejected ev
 - Blur-in text and letter-by-letter or 3D-flip headlines: animated blur is ruled out over a canvas, and
   per-character spans are noise for screen readers. Word-by-word with `aria-hidden` spans and an `aria-label` is fine.
 - Hold-to-confirm, fleeing buttons, marquees: friction, dark-pattern adjacency, endless motion.
+- A View Transition for a launcher-to-panel morph over live content: it freezes the map and polling into a snapshot,
+  stretches a round button into an ellipse and puts two launchers on screen. Use the clip-path morph instead.
+- A spring on a panel's shape (its clip or size): it drags the corner radius around. Springs only on small controls'
+  `transform`, and never on opacity, which overshoots past 1 and flickers.
+- Fading a drawer or menu panel in: the page ghosts through its rows. Keep it opaque and reveal it with a clip.
+- A conic-gradient loading orb: at avatar size its centre reads as a pinwheel seam. Use orbiting radial blobs.
 
 ## Reference files
 
@@ -75,9 +93,16 @@ were hiring managers who skim, so scroll hijacking and gimmicks were rejected ev
   circular View Transition, drawer dialog, segmented-nav pill, text scramble, honest loader, progress, hotspot ping,
   press and arrow micro-interactions), with code, use and traps.
 - `references/sources.md`: the twelve reviewed sites (what each really is, licence, verdict), attribution rules.
-- `references/layout-and-3d.md`: no-scroll layouts across viewport heights, the sizes to test, safe areas, and UI
-  over a 3D canvas: projected tags, cards kept on screen, camera flights, scrubbable progress, loading, quality menus.
+- `references/layout-and-3d.md`: no-scroll layouts across viewport heights, the sizes to test, safe areas, content that
+  widens phone pages (`1fr`, nowrap, long tokens, scroll traps), and UI over a 3D canvas: projected tags, cards kept on screen, camera flights, scrubbable progress, loading, quality menus.
+- `references/live-app-patterns.md`: apps that poll or stream: poll-safe and once-only entrances, the blank-box
+  trap, a chat assistant (launcher morph, streaming orb, phase label, Send/Stop with focus handoff, citations, copy),
+  exit animations that keep state synchronous, gliding pills, drawers, third-party widgets, timeline zoom, press
+  feedback that survives navigation.
+- `references/testing-motion.md`: browser-test traps (tests that pass without testing, tests that fail at random,
+  seeing native popups and blank frames, reaching real phone widths).
 - `references/theme-example.md`: the "liquid glass" cobalt/cyan theme from that project, as one example style.
   It is that site's taste; don't apply it by default.
-- `assets/`: `motion-base.css` (tokens + patterns, generic class names), `motion-helpers.tsx` (React helpers, with
+- `assets/`: `motion-base.css` (tokens + patterns 1-15, incl. once-only entrance, launcher morph, working orb,
+  Send/Stop pop; generic class names), `motion-helpers.tsx` (React helpers, with
   credits), `layout.spec.example.ts` (Playwright no-scroll layout test).

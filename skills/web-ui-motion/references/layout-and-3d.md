@@ -7,6 +7,7 @@
 4. Camera flights and a scrubbable progress bar
 5. Loading, quality settings, fullscreen
 6. Reduced motion and returning visitors in a 3D experience
+7. Content-heavy apps: what really widens a phone page
 
 ## 1. Layouts that fit every viewport
 
@@ -114,3 +115,33 @@ style) rather than text in the scene.
   pausing ambient motion never leaves the scene in a wrong state.
 - Don't route leaving a WebGL view through a View Transition; don't destroy and rebuild the 3D view when the visitor
   briefly switches to a text view: hide and pause it, so returning is instant.
+
+## 7. Content-heavy apps: what really widens a phone page
+
+These come from a data dashboard (lists of 50+ records, maps, settings) that still scrolled sideways on phones after
+a full responsive pass. None of the causes were in the new CSS. They were in the content.
+
+- **A bare `1fr` is `minmax(auto, 1fr)`**, and it won't shrink below its content's minimum width. One long unbreakable
+  token (an email address, a serial number) widened a settings column to 360 px inside a 390 px phone, making the
+  page 549 px wide. Use `minmax(0, 1fr)` on every content grid and `overflow-wrap: anywhere` on values. A test that
+  every content grid uses `minmax(0, …)` tracks keeps it that way.
+- **`white-space: nowrap` inside a grid or flex item** makes that item at least as wide as its text (the default
+  `min-width` is `auto`). Give the item `min-width: 0` and let the text ellipsise. Test with absurd values
+  (12345 / 67890): the value must be cut off on one line without widening the page.
+- **A scroll container that fills the width** traps a vertical swipe anywhere over it. A 70vh list of 53 cards meant
+  the panel below it could only be reached by scrolling past every card. Narrow the scroller so the side lanes are
+  not scrollable: `width: min(100% + 14px, max(280px, 100% - 88px))`. Padding can't do this, because it sits inside
+  the scroll area. Centre it with `justify-self: center` in a grid, not `margin-inline: auto`: when the box is wider
+  than its container, auto margins become zero and all the overflow goes to the right.
+- **iOS zooms into inputs under 16 px**, so a common fix sets every `select` to 16 px at the end of the stylesheet.
+  Anything sitting beside those controls has to match, or the two sizes look mismatched.
+- **Only one tile wrapped** in a row of four KPI tiles ("10 / 53" had a space to break at, the others didn't), so it
+  read as a different size. Give the tiles more room (less gap, a smaller icon) rather than smaller text. Below 360 px,
+  drop to one column.
+- **Map popups on phones:** size them from the map, which is inset from the window, not from the viewport:
+  `width: min(240px, calc(70vw - 50px))` plus `max-height: min(42vh, 230px); overflow-y: auto`. `width: auto` squeezed
+  a label/value grid down to about 110 px.
+- **Tap targets smaller than the visual:** give a small pill an invisible `::after` tap margin to reach about
+  44 px, rather than making the pill bigger.
+- **Stop accidental pinch zoom** in an app-like shell with `touch-action: pan-x pan-y` on `body`, but only once text
+  is readable at 1×.

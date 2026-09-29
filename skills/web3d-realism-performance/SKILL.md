@@ -1,6 +1,6 @@
 ---
 name: web3d-realism-performance
-description: How to make a real-time browser 3D scene (three.js, React Three Fiber, WebGL/WebGPU) look more photorealistic while keeping or improving its frame time. Covers measuring frame time and visual change properly, cheap wins (draw order, batching, skipping work in shaders), baked lighting (Cycles lightmaps on a second UV set, a baked reflection probe), PBR textures, impostors for vegetation, and glTF asset optimisation. Use this whenever the user wants a web 3D scene to look better, more realistic or more "premium", wants it faster or smoother, mentions frame rate, draw calls, jank, GPU cost, lightmaps, light baking, Blender baking, global illumination, shadows, reflections, environment maps, PBR materials, tree or forest rendering, or asks to optimise a three.js scene "without losing quality", even if they don't name any of these techniques.
+description: How to make a real-time browser 3D scene (three.js, React Three Fiber, CesiumJS, WebGL/WebGPU) look more photorealistic while keeping or improving its frame time. Covers measuring frame time and visual change, cheap wins (draw order, batching, skipping work in shaders), baked lighting (Cycles lightmaps on a second UV set, a baked reflection probe), PBR textures, impostors for vegetation, glTF asset optimisation, and CAD-accurate models repeated many times (light copies, full detail on demand). Use this whenever the user wants a web 3D scene to look better, more realistic or more "premium", wants it faster or smoother, or mentions frame rate, draw calls, jank, GPU cost, lightmaps, light baking, Blender baking, global illumination, shadows, reflections, environment maps, PBR materials, tree or forest rendering, CAD or datasheet-accurate models, level of detail, soft or blurry 3D on phones, or wants a scene optimised "without losing quality", even if they don't name any of these techniques.
 ---
 
 # Photorealism and performance for web 3D scenes
@@ -56,7 +56,12 @@ In rough order of payoff in the project. Details, code and the rejected ideas ar
 - **Per-frame JS garbage and DOM writes.** Write styles to HTML overlays (labels, pins) only when the value changes.
 - **Resolution policy.** Cap the drawing buffer in pixels (for example 5 MP on "High", 1.5 MP on "Performance")
   rather than trusting `devicePixelRatio` on phones, and keep a frame limiter's remainder so a 30 fps cap does not
-  read as slow frames.
+  read as slow frames. CesiumJS has the opposite default: it draws in CSS pixels, so a 3× phone renders about a
+  ninth of its pixels and looks soft. Scale `resolutionScale` by DPR on touch screens, capped at 3
+  (`references/cesium-and-cad-models.md` §2).
+- **Detail on demand for repeated models.** A full CAD model on each of 171 repeated parts cost +50% frame time and
+  +340 MB. A 1-2k-triangle light version on every copy, plus the full one on the single copy a close-up view frames
+  (loaded in the background), cost nothing measurable. A single instance needs no light version at all.
 
 ## Photorealism per millisecond
 
@@ -107,6 +112,9 @@ transitions into and out of the 3D view) is covered by the `web-ui-motion` skill
   policy, tried-and-dropped list.
 - `references/lightmaps.md`: the Cycles lightmap and reflection-probe pipeline end to end, runtime shader patch,
   signature matching, and every bug hit along the way.
+- `references/cesium-and-cad-models.md`: light/full model pairs with measured costs, per-asset triangle budgets,
+  CesiumJS resolution and primitive/render-loop/harness traps, CAD models from datasheets in headless Blender, and
+  why effects sized in screen space fade out at distance.
 - `references/realism.md`: materials, environment, vegetation impostors, glTF optimisation, review renders.
 - `scripts/perf/`: `bench.mjs` (fixed-pose GPU benchmark), `compare.py` (visual diff), `ab.sh` (alternating A/B).
   Templates: adapt the pose list and the app hooks (`window.__lab`-style) to the project.
