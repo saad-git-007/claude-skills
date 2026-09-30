@@ -97,7 +97,8 @@ tweaks.
   intended change shown in side-by-side renders.
 - Load cost reported: extra download (desktop and phone), texture memory, time to first frame.
 - Guards in place so the optimisation cannot silently rot: shader chunk patches throw if the chunk text changed;
-  a test fails when baked geometry no longer matches the bake.
+  a test fails when baked geometry no longer matches the bake. That test does not notice a changed light, emitter
+  or occluder: re-bake after those too (lightmaps.md, section 7).
 - The re-bake / re-measure commands written down in the project's docs, since the next person to change geometry
   needs them.
 

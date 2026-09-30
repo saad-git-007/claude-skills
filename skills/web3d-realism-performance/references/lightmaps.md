@@ -163,6 +163,16 @@ brightness per view (within about ±10%), then let the bake's softer light stand
   file and the probe return 200 and are not an HTML fallback page. Any geometry change then fails the test until
   someone re-bakes, which is the point.
 - Document the three commands (export, bake, publish) and the time they take.
+- The signature test only covers the baked surfaces. Removing or changing a **light, emitter or occluder** (a glowing
+  post, a lamp, a large model) leaves every target matching, so the test stays green while the maps still hold the
+  old light: the removed object's glow or shadow stays on its surroundings. Re-bake after any change to what lights
+  or shades the scene, not only after geometry changes to targets. Better: have the exporter hash the emitters,
+  occluders and lights, store the hash in the manifest, and make the test compare it with the page's current scene.
+- After a re-bake, check that the change arrived and nothing else moved: compare the exporter's counts per role
+  with the previous export (removing four 12-sided posts dropped the emitter triangles by exactly 192), and render the
+  key views against the previous bake (brightness per view within about 0.5%, apart from the intended change).
+- Each bake's working directory holds float maps, EXRs and .blend files: 350-650 MB per run at 2048. Keep the run
+  behind the live maps (for debugging) and delete earlier ones; a tuning session had left 3.9 GB of old runs.
 
 ## 8. Bugs hit, and their fixes
 
