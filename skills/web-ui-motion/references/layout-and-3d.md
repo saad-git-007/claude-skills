@@ -69,6 +69,11 @@ style) rather than text in the scene.
   the tag (`--card-y`) when it would run past the dock; on portrait phones always open upward.
 - On phones, turn tags into dots with short-name pills; sort visible tags by screen x and alternate their labels
   below/above so neighbours never collide.
+- **Terrain occlusion for markers** (peaks, trails over real terrain): march the heightfield from the camera to the
+  anchor every few frames and hide the marker when the ray is below the ground by more than a tolerance; skip the last
+  ~150 m (or 3%) and lift the anchor ~10 m so a summit marker is not hidden by its own flanks; fade markers in and
+  out rather than toggling; label only the nearest marker. Test the dot, not the button: the marker's `<button>` can
+  have a zero-size box, so automation and hit tests must aim at the child dot.
 - Show a station's tags only when the camera has arrived there (not during camera moves), so they are tappable.
 - Tapping a tag during an automatic tour pauses it; closing the card resumes it (unless the visitor had paused).
 

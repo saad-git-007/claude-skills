@@ -1,6 +1,6 @@
 ---
 name: web3d-realism-performance
-description: How to make a real-time browser 3D scene (three.js, React Three Fiber, CesiumJS, WebGL/WebGPU) look more photorealistic while keeping or improving its frame time. Covers measuring frame time and visual change, cheap wins (draw order, batching, skipping work in shaders), baked lighting (Cycles lightmaps on a second UV set, a baked reflection probe), PBR textures, impostors for vegetation, glTF asset optimisation, and CAD-accurate models repeated many times (light copies, full detail on demand). Use this whenever the user wants a web 3D scene to look better, more realistic or more "premium", wants it faster or smoother, or mentions frame rate, draw calls, jank, GPU cost, lightmaps, light baking, Blender baking, global illumination, shadows, reflections, environment maps, PBR materials, tree or forest rendering, CAD or datasheet-accurate models, level of detail, soft or blurry 3D on phones, or wants a scene optimised "without losing quality", even if they don't name any of these techniques.
+description: How to make a real-time browser 3D scene (three.js, React Three Fiber, CesiumJS, WebGL/WebGPU) look more photorealistic while keeping or improving its frame time, and how to film it. Covers measuring frame time and visual change, cheap wins (draw order, batching, skipping shader work), baked lighting (Cycles lightmaps, reflection probe), PBR, vegetation impostors, glTF optimisation, CAD models repeated many times, real-place landscapes from elevation data (terrain, relief, treeline, matching photos) and frame-exact demo videos of a live WebGL app. Use whenever the user wants a web 3D scene to look better, more realistic or more "premium", faster or smoother, mentions frame rate, draw calls, jank, GPU cost, lightmaps, baking, shadows, reflections, PBR, forests, CAD models, LOD, soft 3D on phones, terrain or DEM scenes, matching a place to photos, or a screen recording, demo video or clip of a 3D app, even if they don't name these techniques.
 ---
 
 # Photorealism and performance for web 3D scenes
@@ -21,7 +21,9 @@ image change?* Set that up before touching the scene, because intuition about GP
    measuring. Unpinned tree sway alone made identical code differ by 2% SSIM.
 2. **Benchmark fixed poses on a real GPU.** Headless Chrome with a GPU: `--use-angle=gl-egl --ignore-gpu-blocklist
    --enable-gpu` (Linux) and `env -u DISPLAY` so it uses EGL rather than a virtual X display. Software WebGL
-   (SwiftShader, llvmpipe, Playwright's default) says nothing about GPU cost. For each pose, run the app's own frame
+   (SwiftShader, llvmpipe, Playwright's default) says nothing about GPU cost, and Chrome falls back to it *silently*
+   when the device is not accessible (nobody logged into the desktop after a reboot): run
+   `scripts/preflight/gpu-check.mjs` at the start of every session (performance.md §1). For each pose, run the app's own frame
    function with the render forced, then a 1-pixel `readPixels` to wait for the GPU; take the median of ~40 frames
    after a few warm-ups. `scripts/perf/bench.mjs` is a template.
 3. **Diff the images.** Lossless screenshots of the same poses; per pose, mean absolute difference and SSIM against a
@@ -59,6 +61,9 @@ In rough order of payoff in the project. Details, code and the rejected ideas ar
   read as slow frames. CesiumJS has the opposite default: it draws in CSS pixels, so a 3× phone renders about a
   ninth of its pixels and looks soft. Scale `resolutionScale` by DPR on touch screens, capped at 3
   (`references/cesium-and-cad-models.md` §2).
+- **Code that only a few pixels need.** A rubble-shading block added to the main terrain shader cost +4.6% GPU on every
+  pixel; behind `#ifdef` in a second material used only by the triangles under the feature it cost nothing
+  (`references/landscape-terrain.md` §4).
 - **Detail on demand for repeated models.** A full CAD model on each of 171 repeated parts cost +50% frame time and
   +340 MB. A 1-2k-triangle light version on every copy, plus the full one on the single copy a close-up view frames
   (loaded in the background), cost nothing measurable. A single instance needs no light version at all.
@@ -102,6 +107,15 @@ tweaks.
 - The re-bake / re-measure commands written down in the project's docs, since the next person to change geometry
   needs them.
 
+## Landscapes and videos
+
+- A real place from a DEM (terrain mesh and relief, treeline, snow, matching photographs, the licence of reference
+  photos): `references/landscape-terrain.md`. Procedural relief must be bounded against the base height or it grows
+  needles and stray peaks.
+- A demo video or clip of the live app: `references/recording-clips.md` and `scripts/record/`. The page runs on a
+  virtual clock so the video is frame-exact whatever the GPU manages; a scripted pointer, punch-in zooms on the UI and
+  keyframed camera paths make it a finished piece.
+
 ## Related skill
 
 UI on top of the scene (HTML labels and cards over the canvas, camera flights, scrubbable progress, loading badges,
@@ -117,6 +131,13 @@ transitions into and out of the 3D view) is covered by the `web-ui-motion` skill
   CesiumJS resolution and primitive/render-loop/harness traps, CAD models from datasheets in headless Blender, and
   why effects sized in screen space fade out at distance.
 - `references/realism.md`: materials, environment, vegetation impostors, glTF optimisation, review renders.
+- `references/landscape-terrain.md`: DEM to mesh, bounded procedural relief, treeline and snow, shader program
+  variants, fitting a camera to a photo and comparing peak by peak, photo licensing.
+- `references/recording-clips.md`: frame-exact video of a live app: virtual clock, GPU preflight, shot-list craft,
+  cinematic extras, delivery and traps.
+- `scripts/preflight/gpu-check.mjs`: refuses a software renderer; prints the cause and the one-line fix.
+- `scripts/record/`: `record.mjs` (virtual-clock recorder with pointer, zoom track and camera hook),
+  `clip.example.mjs`, `post.py` (downscale), `encode.sh` (H.264 for X and friends). Tested on a heavy three.js scene.
 - `scripts/perf/`: `bench.mjs` (fixed-pose GPU benchmark), `compare.py` (visual diff), `ab.sh` (alternating A/B).
   Templates: adapt the pose list and the app hooks (`window.__lab`-style) to the project.
 - `scripts/lightmap-reference/`: the project's `export.mjs`, `bake.py`, `publish.py` and `lightmap.ts`. They are

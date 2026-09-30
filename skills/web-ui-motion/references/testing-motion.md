@@ -42,6 +42,11 @@ apply to Playwright as well.
 
 - **Native popups** (`<select>` lists) don't appear in headless screenshots. Use headful Chrome under Xvfb and grab
   the screen (`import -window root`).
+- **Frame-exact capture of the whole UI** (videos, pixel-stable screenshots of mid-transition states): drive
+  rAF, `performance.now`, timers and every animation in `document.getAnimations()` from one virtual clock (pause each
+  animation and set `currentTime`; `finish()` at the end), then screenshot per step. Real-time screencasts of a slow
+  GPU are jittery and let canvas and DOM drift apart. Working recorder: the `web3d-realism-performance` skill,
+  `scripts/record/` and `references/recording-clips.md`. Headless Chrome draws no mouse pointer; inject one.
 - **Short effects:** a 600 ms sheen is visible only from about 20 to 130 ms. Take screenshots early, or slow
   everything with CDP `Animation.setPlaybackRate`.
 - **Blank frames:** film transitions at 0.1× speed before judging them (live-app-patterns §2).

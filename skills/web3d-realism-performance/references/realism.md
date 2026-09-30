@@ -23,6 +23,8 @@
 - With baked light, attach these maps before the bake clones the material (see lightmaps.md), and remember the
   material colour multiplies the baked irradiance.
 - Record every asset's source and licence (and modifications, for CC BY) where the project keeps credits.
+- Reference photographs are not assets: keep them out of the repo and `public/`, and remember that crediting a photo is
+  not permission to ship it (`landscape-terrain.md` §6).
 
 ## 2. Light, sky and environment
 
@@ -79,3 +81,5 @@ Cross-plane tree cards look fake from most angles. What worked:
   corners, sawtooth along grazing light, floating objects, reflections of the wrong thing, crushed blacks.
 - Check a phone viewport too (half-size maps, different framing).
 - Send the renders to the user; realism is their call, and they will spot things tests cannot.
+- For a real place, compare against photographs from the *same viewpoint* (recover the photo's camera pose first) and go
+  feature by feature (`landscape-terrain.md` §5).

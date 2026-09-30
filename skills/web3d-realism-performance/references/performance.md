@@ -48,6 +48,20 @@ several per cent and one unbalanced comparison read -14% that was noise. Use alt
 '--use-angle=gl-egl', '--ignore-gpu-blocklist', '--enable-gpu'] })`, run with `env -u DISPLAY`. Run GPU checks one at
 a time; two at once distort each other.
 
+**Check that the GPU is really used, every session** (`scripts/preflight/gpu-check.mjs`: prints the unmasked WebGL
+renderer). Chrome falls back to llvmpipe *silently* when it cannot open `/dev/dri/renderD128`, most often because nobody
+is logged into the machine's desktop after a reboot (you are on SSH), so the device ACL is not granted to you. Symptoms:
+a scene that worked yesterday never reaches "ready" (all shaders compile on the CPU: 10+ minutes), one core pinned in the
+GPU process, and Chrome's SwiftShader fallback refusing to create a context. Fix: log in on the desktop, or the owner runs
+`sudo setfacl -m u:$USER:rw /dev/dri/renderD128 /dev/dri/card0`. Never benchmark or record on the fallback.
+
+**Benchmark against fixed camera poses, not animated paths.** An intro flight or ride path that changes between builds
+makes the A/B compare different images. Switch dynamic resolution off for the run (a fixed pixel-ratio parameter), or it
+will hide or fake the difference.
+
+**Killing the browser from a tool shell:** `pkill -f google-chrome` (or a `pgrep -f` wait loop) matches the tool's own
+command line and kills/hangs the shell. Kill by PID taken from `ps -eo pid,args | awk …`, and wait on output files.
+
 ## 2. Draw order and overdraw
 
 three.js draws opaque objects sorted by `renderOrder`, then by material id (creation order), then front to back by
@@ -91,6 +105,11 @@ fragments of clouds or blended leaves that contribute nothing (`if (alpha < 1.0/
 Per-material patches go in `onBeforeCompile`. If you also set a global `Material.prototype.onBeforeCompile`, a
 material with its own hook must call the prototype's first, and give each patched variant a
 `customProgramCacheKey`.
+
+**Keep feature code out of the common program.** Shading for something that covers a sliver of the screen (a rubble
+patch, a decal field) added to the main terrain fragment shader cost +4.6% GPU on every pixel. Put it behind `#ifdef`,
+build a second material sharing the same uniforms, and route only the triangles under the feature to it
+(`landscape-terrain.md` §4).
 
 ## 4. Shadows
 
