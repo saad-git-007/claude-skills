@@ -1,0 +1,35 @@
+<!doctype html>
+<!-- Scroll reveal demo. Serve this folder (python3 -m http.server) and scroll. See references/scroll-reveal.md. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scroll reveal demo</title>
+<script src="reveal-head.js"></script>
+<link rel="stylesheet" href="scroll-reveal.css">
+<style>
+  body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: #f4f1ea; color: #151515; }
+  main { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+  .pagehead { text-align: center; padding: 40px 0 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .card { background: #fff; border-radius: 18px; padding: 20px; min-height: 140px; box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+  @media (hover: hover) { .card:hover { transform: translateY(-3px); } }
+  .prose { margin: 48px 0; }
+  h2 { scroll-margin-top: 16px; }
+</style>
+<script src="scroll-reveal.js" defer></script>
+</head>
+<body>
+<main>
+  <header class="pagehead"><h1>Scroll reveal</h1><p>Header lines rise in one after another; blocks below reveal once as they arrive.</p><p><a href="#more">Jump to more (smooth)</a></p></header>
+  <div class="grid" data-reveal-group>
+    <div class="card">One</div><div class="card">Two</div><div class="card">Three</div><div class="card">Four</div>
+    <div class="card">Five</div><div class="card">Six</div><div class="card">Seven</div><div class="card">Eight</div>
+  </div>
+  <section class="prose" data-reveal><h2 id="more">More</h2><p>A single block marked with data-reveal.</p></section>
+  <div class="grid" data-reveal-group>
+    <div class="card">Nine</div><div class="card">Ten</div><div class="card">Eleven</div><div class="card">Twelve</div>
+  </div>
+</main>
+</body>
+</html>

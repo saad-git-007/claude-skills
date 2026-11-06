@@ -1,6 +1,6 @@
 ---
 name: web-ui-motion
-description: "A tested motion and layout system for websites and web apps: timing and easing tokens, entrance and scroll reveals, View Transitions, drawers, gliding pills, honest loaders, micro-interactions, reduced motion, layouts that fit every viewport, UI over a 3D (WebGL/three.js) canvas, motion in live apps that poll or stream (dashboards, AI chat: launcher morph, loading avatar, Send/Stop, citations), and browser-test traps that let motion tests pass without testing. Includes a licence-checked review of twelve UI sources (beui.dev, bencho.dev, aura.build and others). Use whenever the user wants to add or polish animations, transitions, hover or press effects, loaders, a more \"premium\" or \"alive\" feel, UI inspiration from component libraries, a chat or assistant panel, or has layout problems on phones, short screens or landscape, or flaky or suspiciously green UI tests, even if they don't say \"motion\"."
+description: "A tested motion and layout system for websites and web apps: timing and easing tokens, entrance and scroll reveals, View Transitions, drawers, gliding pills, honest loaders, micro-interactions, reduced motion, layouts that fit every viewport, UI over a 3D (WebGL/three.js) canvas, motion in live apps that poll or stream (dashboards, AI chat: launcher morph, loading avatar, Send/Stop, citations), a ready-made plain-JS scroll reveal (staggered, once only, no-JS safe), and browser-test traps that let motion tests pass without testing. Includes a licence-checked review of twelve UI sources (beui.dev, bencho.dev, aura.build and others). Use whenever the user wants to add or polish animations, transitions, hover or press effects, loaders, a more \"premium\" or \"alive\" feel, UI inspiration from component libraries, a chat or assistant panel, or has layout problems on phones, short screens or landscape, or flaky or suspiciously green UI tests, even if they don't say \"motion\"."
 ---
 
 # Web UI motion and layout
@@ -89,6 +89,8 @@ were hiring managers who skim, so scroll hijacking and gimmicks were rejected ev
 
 ## Reference files
 
+- `references/scroll-reveal.md`: the exact scroll reveal from the mosque site (files in `assets/scroll-reveal/`:
+  head script, deferred script, CSS, demo), wiring, what to reveal and why each value.
 - `references/patterns.md`: the pattern catalogue (hero entrance, scroll reveal, growing `<details>`, CTA sheen,
   circular View Transition, drawer dialog, segmented-nav pill, text scramble, honest loader, progress, hotspot ping,
   press and arrow micro-interactions), with code, use and traps.

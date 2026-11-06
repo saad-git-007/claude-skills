@@ -1,0 +1,49 @@
+/* Urdu and Arabic text: drop-in tokens and classes (from a production mosque site).
+   Rename the font files to yours; build each cut with scripts/subset_font.py. */
+
+@font-face { font-family: "DigitalKhatt IndoPak"; src: url("/fonts/dk-arabic.woff2") format("woff2"); font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+@font-face { font-family: "Noori Passages"; src: url("/fonts/noori-passages.woff2") format("woff2"); font-display: swap;
+  unicode-range: U+0600-06FF, U+FB50-FDFF, U+FE70-FEFF; }
+/* Full Urdu alphabet for text written by editors: only used inside .prose, so it downloads only when needed. */
+@font-face { font-family: "Noori Text"; src: url("/fonts/noori-text.woff2") format("woff2"); font-display: swap;
+  unicode-range: U+0600-06FF, U+FB50-FDFF, U+FE70-FEFF; }
+
+:root {
+  --font-arabic: "DigitalKhatt IndoPak", "Amiri Quran", "Scheherazade New", serif;
+  --font-urdu: "Noori Passages", "Noori Text", "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", serif;
+}
+
+/* Qur'anic verse or hadith in Arabic. */
+.ar { font-family: var(--font-arabic); font-size: 26px; line-height: 2.1; direction: rtl; text-align: right; }
+
+/* Urdu passage: tall Nastaliq lines, words spaced by about one narrow letter. Never letter-spacing. */
+.ur { font-family: var(--font-urdu); font-size: 21px; line-height: 2.25; word-spacing: .3em;
+  direction: rtl; text-align: right; padding: 10px 14px; }
+
+/* Short Arabic label under an English name (prayer names). */
+.ar-label { display: block; font-family: var(--font-arabic); font-size: 19px; line-height: 1.8; }
+
+/* Urdu or Arabic paragraphs inside editor-written prose. */
+.prose [dir="rtl"] { font-family: "Noori Text", "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", serif;
+  font-size: 1.3em; line-height: 2.3; word-spacing: .3em; text-align: right; }
+
+@media (max-width: 640px) {
+  .ar { font-size: 22px; }
+  .ur { font-size: 19px; }
+  .ar-label { font-size: 16px; }
+}
+
+/* Apple devices: Safari can't shape Jameel Noori Nastaleeq (unjoined letters); use the system Nastaliq.
+   `font: -apple-system-body` is only understood by WebKit on Apple platforms. */
+@supports (font: -apple-system-body) {
+  .ur, .prose [dir="rtl"] { font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif; line-height: 2.4; word-spacing: .3em; }
+}
+
+/* A fixed phrase pre-shaped to SVG (scripts/shape_to_svg.py), coloured by the theme.
+   Markup: <p class="bismillah" lang="ar" role="img" aria-label="بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ"></p>
+   Set aspect-ratio to the SVG viewBox width / height that the script prints. */
+.bismillah { width: clamp(210px, 54vw, 290px); aspect-ratio: 7867 / 1549; margin: 6px auto 10px;
+  background-color: currentColor;
+  -webkit-mask: url("/img/bismillah.svg") center / contain no-repeat;
+  mask: url("/img/bismillah.svg") center / contain no-repeat; }
