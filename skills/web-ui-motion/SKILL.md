@@ -1,6 +1,6 @@
 ---
 name: web-ui-motion
-description: "A tested motion and layout system for websites and web apps: timing and easing tokens, entrance and scroll reveals, View Transitions, drawers, gliding pills, honest loaders, micro-interactions, reduced motion, layouts that fit every viewport, UI over a 3D (WebGL/three.js) canvas, motion in live apps that poll or stream (dashboards, AI chat: launcher morph, loading avatar, Send/Stop, citations), a ready-made plain-JS scroll reveal (staggered, once only, no-JS safe), and browser-test traps that let motion tests pass without testing. Includes a licence-checked review of twelve UI sources (beui.dev, bencho.dev, aura.build and others). Use whenever the user wants to add or polish animations, transitions, hover or press effects, loaders, a more \"premium\" or \"alive\" feel, UI inspiration from component libraries, a chat or assistant panel, or has layout problems on phones, short screens or landscape, or flaky or suspiciously green UI tests, even if they don't say \"motion\"."
+description: "A tested motion and layout system for websites and web apps: timing and easing tokens, entrance and scroll reveals, View Transitions, drawers, gliding pills, honest loaders, micro-interactions, reduced motion, layouts that fit every viewport, UI over a 3D (WebGL/three.js) canvas, motion in live apps that poll or stream (dashboards, AI chat: launcher morph, loading avatar, Send/Stop, citations), a ready-made plain-JS scroll reveal (staggered, once only, no-JS safe), a ready-made morphing bottom dock / phone menu (the exact one from the mosque site: files, markup, theme, fixes), and browser-test traps that let motion tests pass without testing. Includes a licence-checked review of twelve UI sources (beui.dev, bencho.dev, aura.build and others). Use whenever the user wants to add or polish animations, transitions, hover or press effects, loaders, a more \"premium\" or \"alive\" feel, a phone bottom menu, dock or tab bar with a More panel, UI inspiration from component libraries, a chat or assistant panel, or has layout problems on phones, short screens or landscape, or flaky or suspiciously green UI tests, even if they don't say \"motion\"."
 ---
 
 # Web UI motion and layout
@@ -101,6 +101,9 @@ were hiring managers who skim, so scroll hijacking and gimmicks were rejected ev
   trap, a chat assistant (launcher morph, streaming orb, phase label, Send/Stop with focus handoff, citations, copy),
   exit animations that keep state synchronous, gliding pills, drawers, third-party widgets, timeline zoom, press
   feedback that survives navigation.
+- `references/morphing-menu.md`: the exact morphing bottom dock (phone menu) from the mosque website, to rebuild
+  identically in new apps: files in `assets/morphing-menu/` (source, pre-built bundle, CSS, theme, demo), markup
+  contract, wiring, what the script does, production fixes, and a Playwright check. Licensed to the user; keep the credit.
 - `references/testing-motion.md`: browser-test traps (tests that pass without testing, tests that fail at random,
   seeing native popups and blank frames, reaching real phone widths).
 - `references/theme-example.md`: the "liquid glass" cobalt/cyan theme from that project, as one example style.

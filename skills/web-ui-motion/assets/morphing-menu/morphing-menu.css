@@ -1,0 +1,142 @@
+/* Self-contained: inherit the host's color-scheme and font; customize --mm-*.
+   The inverted surface matches the original menu in both light and dark mode. */
+.morphing-menu {
+  --mm-surface: light-dark(#0d0d0d, #fff);
+  --mm-ink: light-dark(rgb(255 255 255 / 90%), rgb(13 13 13 / 90%));
+  --mm-hover: light-dark(rgb(255 255 255 / 6%), rgb(0 0 0 / 4%));
+  --mm-button: 44px;
+  --mm-inset: 4px;
+  --mm-bar-height: calc(var(--mm-button) + 2 * var(--mm-inset));
+  --mm-bar-width: min(calc(var(--mm-count) * var(--mm-button) + 2 * var(--mm-inset)), calc(100vw - 32px));
+  --mm-panel-width: min(268px, calc(100vw - 32px));
+  --mm-panel-padding: 8px;
+  --mm-radius: calc(var(--mm-bar-height) / 2);
+  position: relative;
+  width: var(--mm-bar-width);
+  height: var(--mm-bar-height);
+  flex: none;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.morphing-menu *, .morphing-menu *::before, .morphing-menu *::after { box-sizing: border-box; }
+
+.morphing-menu__shell {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  translate: -50% 0;
+  width: var(--mm-bar-width);
+  height: var(--mm-bar-height);
+  border-radius: var(--mm-radius);
+  background: var(--mm-surface, #0d0d0d);
+  color: var(--mm-ink, #fff);
+  box-shadow:
+    inset 0 1px 1px light-dark(rgb(255 255 255 / 8%), rgb(255 255 255 / 40%)),
+    inset 0 -1px 2px light-dark(rgb(0 0 0 / 50%), rgb(0 0 0 / 20%)),
+    0 1px 2px rgb(0 0 0 / 12%);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.morphing-menu__bar {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  padding: var(--mm-inset);
+  width: var(--mm-bar-width);
+  height: var(--mm-bar-height);
+}
+
+.morphing-menu__shortcut, .morphing-menu__row {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  flex: none;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  scale: 1;
+  transition: background 150ms ease, scale 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.morphing-menu__shortcut {
+  justify-content: center;
+  width: 0;
+  flex: 1;
+  height: var(--mm-button);
+  padding: 0;
+  border-radius: 999px;
+}
+
+.morphing-menu__panel {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  width: var(--mm-panel-width);
+  padding: var(--mm-panel-padding);
+  max-height: calc(100dvh - 64px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.morphing-menu [aria-hidden="true"] { pointer-events: none; }
+.morphing-menu__row {
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 12px;
+  border-radius: calc(var(--mm-radius) - var(--mm-panel-padding));
+  text-align: left;
+}
+.morphing-menu__panel[aria-hidden="true"] .morphing-menu__row { opacity: 0; }
+.morphing-menu__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.morphing-menu__icon { display: flex; flex: none; }
+.morphing-menu svg { width: 20px; height: 20px; flex-shrink: 0; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.morphing-menu__chevron { margin-left: auto; opacity: 0.6; }
+.morphing-menu__shortcut:focus-visible, .morphing-menu__row:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; }
+
+.morphing-menu__tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  translate: -50% 0;
+  padding: 6px 10px;
+  border-radius: 14px;
+  background: light-dark(#fff, #171717);
+  color: light-dark(#111, #fefefe);
+  box-shadow: 0 0 0 1px light-dark(rgb(0 0 0 / 6%), rgb(255 255 255 / 10%)), 0 1px 2px -1px rgb(0 0 0 / 6%), 0 2px 4px rgb(0 0 0 / 4%);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .morphing-menu__shortcut:hover, .morphing-menu__row:hover { background: var(--mm-hover); }
+}
+@media (pointer: coarse) {
+  .morphing-menu { --mm-button: 48px; --mm-bar-width: min(296px, calc(100vw - 32px)); --mm-panel-width: min(296px, calc(100vw - 32px)); --mm-panel-padding: 12px; }
+  .morphing-menu__row { min-height: 44px; padding-block: 12px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .morphing-menu__shortcut:active, .morphing-menu__row:active { transition-duration: 100ms; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+  .morphing-menu__shortcut:active { scale: 0.95; }
+  .morphing-menu__row:active { scale: 0.96; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .morphing-menu__shortcut, .morphing-menu__row { transition: none; scale: 1; }
+}

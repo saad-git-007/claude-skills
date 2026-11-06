@@ -1,0 +1,77 @@
+/* Morphing bottom dock: placement, theme and the fixes learned in production (mosque website, 2026).
+   Load AFTER morphing-menu.css. morphing-menu.css holds layout and motion; this file holds placement, colours
+   and the dock-with-captions variant. Rename the tokens to your project's; keep the structure. */
+
+/* Theme tokens: one opaque surface per theme (never translucent: rows would ghost through while it morphs). */
+:root {
+  --dock-surface: #ffffff;
+  --dock-ink: rgb(21 21 21 / 88%);
+  --dock-hover: rgb(20 33 61 / 6%);
+  --dock-active: #7a560f;                       /* current page: the brand accent, readable on the surface */
+  --dock-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(20, 33, 61, .13), 0 2px 4px rgba(20, 33, 61, .06), 0 14px 34px rgba(20, 33, 61, .16);
+}
+:root[data-theme="dark"] {
+  --dock-surface: #18223a;
+  --dock-ink: rgb(246 242 232 / 90%);
+  --dock-hover: rgb(255 255 255 / 7%);
+  --dock-active: #e8c66e;
+  --dock-shadow: inset 0 1px 0 rgba(255, 240, 205, .16), 0 0 0 1px rgba(255, 236, 190, .18), 0 2px 4px rgba(0, 0, 0, .3), 0 16px 36px rgba(0, 0, 0, .5);
+}
+/* If the site follows the OS theme instead of a data-theme toggle, repeat the dark block under
+   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { ... } } */
+
+/* Placement: phones and narrow windows only; the desktop top nav takes over above the breakpoint. */
+.mm-dock { display: none; }
+@media (max-width: 1020px) {
+  .mm-dock {
+    display: flex; justify-content: center; position: fixed; z-index: 40; left: 0; right: 0;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); pointer-events: none;   /* the strip itself never blocks taps */
+  }
+  .mm-dock .morphing-menu { pointer-events: auto; }
+  /* Room so the last content is never hidden behind the dock. */
+  main { padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* Colours from the tokens. */
+.mm-dock .morphing-menu {
+  --mm-surface: var(--dock-surface); --mm-ink: var(--dock-ink); --mm-hover: var(--dock-hover);
+  --mm-count: 6;                                     /* dock items + More */
+  font-family: inherit;
+}
+.mm-dock .morphing-menu__shell { box-shadow: var(--dock-shadow); }
+.mm-dock .morphing-menu__tooltip { background: var(--dock-surface); color: var(--dock-ink); }
+
+/* Dock with captions under the icons (taller, slightly wider than the icon-only original). */
+.mm-dock .morphing-menu { --mm-button: 56px; --mm-inset: 5px; --mm-bar-width: min(348px, calc(100vw - 24px)); --mm-panel-width: min(260px, calc(100vw - 32px)); }
+.mm-dock .morphing-menu__shortcut { position: relative; flex-direction: column; gap: 3px; height: var(--mm-button); border-radius: 22px; }
+.mm-dock .morphing-menu__shortcut .morphing-menu__icon svg { width: 22px; height: 22px; }
+.mm-cap { font-size: 10.5px; line-height: 1; font-weight: 600; letter-spacing: .01em; white-space: nowrap; }
+
+/* Current page: accent colour + heavier caption. "More" lights up (aria-current="true") when the current page lives in
+   the panel. */
+.mm-dock .morphing-menu__shortcut[aria-current="page"], .mm-dock .morphing-menu__shortcut[aria-current="true"],
+.mm-dock .morphing-menu__row[aria-current="page"] { color: var(--dock-active); }
+.mm-dock .morphing-menu__shortcut[aria-current="page"] .mm-cap { font-weight: 800; }
+.mm-dock .morphing-menu__row[aria-current="page"] { font-weight: 700; }
+
+/* Icon helpers: the More dots are filled; icons may mark parts as filled or unstroked. */
+.mm-dock .morphing-menu__shortcut[data-menu-item="more"] circle { fill: currentColor; stroke: none; }
+.mm-dock .morphing-menu svg .fill { fill: currentColor; stroke: none; }
+.mm-dock .morphing-menu svg .nostroke { stroke: none; }
+
+/* The hidden list must never scroll: its resting rows sit 16px low, which made the panel scrollable and some phone
+   browsers drew a thin scrollbar between the last dock item and More. */
+.mm-dock .morphing-menu__panel { scrollbar-width: none; }
+.mm-dock .morphing-menu__panel::-webkit-scrollbar { display: none; }
+.mm-dock .morphing-menu__panel[aria-hidden="true"] { overflow: hidden; }
+
+/* Rows that leave the site: a small arrow at the end. Rows may show a logo image instead of a line icon. */
+.morphing-menu__row .ext { margin-left: auto; display: inline-flex; opacity: .6; }
+.morphing-menu__row .ext svg { width: 15px; height: 15px; }
+.morphing-menu__icon img.mm-logo { width: 20px; height: 20px; object-fit: contain; display: block; scale: 1.2; } /* same 20px slot as the icons, so labels stay aligned */
+
+/* Cross-document View Transitions: keep the dock still while the page crossfades. */
+@media (prefers-reduced-motion: no-preference) {
+  .mm-dock { view-transition-name: mmenu; }
+  ::view-transition-old(mmenu), ::view-transition-new(mmenu) { animation: none; }
+}
