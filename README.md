@@ -55,10 +55,8 @@ and names to yours.
 open-design.ai reveal pattern and MengTo/Skills (MIT), as credited in its header. Sources whose terms don't allow reuse
 were used for ideas only; see `web-ui-motion/references/sources.md`.
 
-`web-ui-motion/assets/morphing-menu/` is a vanilla-JS port of Danny Williams's *Morphing menu*, published here with
-his permission. It is not covered by this repository's MIT licence: credit him and check the original's terms before
-reusing it.
+`web-ui-motion/assets/morphing-menu/` is a vanilla-JS port of Danny Williams's *Morphing menu*.
 
 ## Licence
 
-[MIT](LICENSE), except `web-ui-motion/assets/morphing-menu/` (see Credits).
+[MIT](LICENSE)

@@ -5,9 +5,8 @@ with five captioned shortcuts and a **More** button. Tapping More squeezes the p
 panel of rows; closing reverses it. Desktop (≥1021 px) hides it and shows a normal top nav. The owner asked for it
 to be rebuilt the same way in future web apps, so reuse these files as they are and change only content and tokens.
 
-**Licence:** a vanilla-JS port of Danny Williams's *Morphing menu* (`MorphingMenu.tsx`), which the user holds a
-licence for. Use it only in the user's own projects, and keep the credit line ("Phone menu: adapted from Danny
-Williams's Morphing menu, used under the owner's licence") in the README or credits.
+**Credit:** a vanilla-JS port of Danny Williams's *Morphing menu* (`MorphingMenu.tsx`). Keep the credit line
+("Phone menu: adapted from Danny Williams's Morphing menu") in the README or credits.
 
 ## Files (in `assets/morphing-menu/`)
 

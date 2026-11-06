@@ -103,7 +103,7 @@ were hiring managers who skim, so scroll hijacking and gimmicks were rejected ev
   feedback that survives navigation.
 - `references/morphing-menu.md`: the exact morphing bottom dock (phone menu) from the mosque website, to rebuild
   identically in new apps: files in `assets/morphing-menu/` (source, pre-built bundle, CSS, theme, demo), markup
-  contract, wiring, what the script does, production fixes, and a Playwright check. Licensed to the user; keep the credit.
+  contract, wiring, what the script does, production fixes, and a Playwright check. Keep the credit to Danny Williams.
 - `references/testing-motion.md`: browser-test traps (tests that pass without testing, tests that fail at random,
   seeing native popups and blank frames, reaching real phone widths).
 - `references/theme-example.md`: the "liquid glass" cobalt/cyan theme from that project, as one example style.

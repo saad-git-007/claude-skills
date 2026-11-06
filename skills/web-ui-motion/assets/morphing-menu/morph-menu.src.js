@@ -1,5 +1,5 @@
 // Morphing bottom menu (phones and narrow windows).
-// A vanilla-JS port of Danny Williams's MorphingMenu.tsx (licensed to the user), using the same motion springs.
+// A vanilla-JS port of Danny Williams's MorphingMenu.tsx, using the same motion springs.
 // The markup is rendered by the server (site.ts) so the dock links work before this script loads.
 // Bundle: `npm run build:client` -> public/assets/morph-menu.js
 
