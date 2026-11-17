@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__ 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Instrument+Serif:ital@1&family=Inter:wght@400;550;600;650&family=JetBrains+Mono&display=swap">
+<style>
+__STYLE__
+:root { --scene-bg: #060607; } :root[data-theme="light"] { --scene-bg: #ece6d9; }
+#c3d { width: 100%; height: 100%; display: block; touch-action: none; }
+.toplink { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 12px; border-radius: 10px; color: var(--text-2); text-decoration: none; font-size: .8125rem; font-weight: 550; border: 1px solid var(--line-strong); background: var(--surface-2); }
+.toplink:hover { background: var(--surface-3); color: var(--text); }
+.legend3d { position: absolute; z-index: 2; left: 12px; bottom: 12px; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; }
+.legend3d span { padding: 5px 10px; border-radius: 999px; font-size: .72rem; color: var(--text-2); background: color-mix(in srgb, var(--surface-1) 88%, transparent); box-shadow: var(--elev-1); backdrop-filter: blur(8px); }
+.legend3d b { color: var(--gold); font-weight: 600; }
+.src { margin-top: 8px; font-size: .75rem; color: var(--text-muted); }
+.src a { color: var(--gold); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><h1>__TITLE__</h1><em>3D</em></div>
+  <div class="spacer"></div>
+  <a class="toplink" href="__VIEWER2D__" title="Open the 2D board viewer"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/></svg>2D</a>
+  <button class="btn-icon theme-toggle" id="theme" aria-label="Switch theme" title="Switch theme">
+    <svg class="i sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <svg class="i moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  </button>
+  <div class="progress" id="progress"></div>
+</header>
+
+<main class="app">
+  <aside class="side">
+    <div class="search">
+      <label class="field">
+        <svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Search part, value or MPN" autocomplete="off" spellcheck="false" aria-label="Search components">
+        <kbd>/</kbd>
+      </label>
+      <div class="row">
+        <span class="count" id="count"></span>
+        <span class="spacer"></span>
+        <button id="showAll" class="btn-sm" style="min-height:28px;padding:0 10px" title="Highlight every match">Show all</button>
+      </div>
+      <label class="switch"><input type="checkbox" id="nnp" checked> NNP parts</label>
+    </div>
+    <div class="detail" id="detail" hidden></div>
+    <div class="list" id="list" role="listbox" aria-label="Components"></div>
+  </aside>
+
+  <section class="stage" id="stage" data-view="3d">
+    <div class="pane" id="pane3d">
+      <div class="pane-label">3D</div>
+      <div class="tools">
+        <button class="btn-icon" id="top3d" title="Top view" aria-label="Top view"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 8v8M8 12h8"/></svg></button>
+        <button class="btn-icon" id="flip3d" title="Flip board" aria-label="Flip board"><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4"/></svg></button>
+        <button id="fit3d" title="Reset to the whole board" style="min-height:30px;padding:0 12px;border:0;background:var(--gold);color:var(--on-gold);font-weight:650"><svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>Reset view</button>
+      </div>
+      <canvas id="c3d"></canvas>
+      <div class="spot" id="spot"></div>
+      <svg class="ring" id="ring" aria-hidden="true">
+        <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e2a8"/><stop offset=".55" stop-color="#d1ae68"/><stop offset="1" stop-color="#9a7533"/></linearGradient></defs>
+        <g id="ringG"><circle class="r-halo" r="10"/><circle class="r-track" r="10"/><circle class="r-main" r="10" pathLength="100"/><circle class="r-comet" r="10" pathLength="100"/><circle class="r-ping" r="10"/></g>
+      </svg>
+      <div class="ring-tag" id="ringTag"></div>
+      <div class="legend3d" id="legend3d"></div>
+      <div class="tip" id="tip3d" hidden></div>
+      <div class="loading" id="load3d"><div><i>Building 3D</i></div></div>
+    </div>
+  </section>
+</main>
+
+<script type="application/json" id="data">__DATA__</script>
+<script type="application/json" id="layerdata">__LAYERS__</script>
+<script type="application/json" id="models">__MODELS__</script>
+<script type="application/json" id="placements">__PLACE__</script>
+<script type="application/json" id="sources">__SOURCES__</script>
+<script>__THREE__</script>
+<script>__ORBIT__</script>
+<script>__GLTF__</script>
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const J = id => JSON.parse(document.getElementById(id).textContent);
+const D = J("data"), LZ = J("layerdata"), MODELS = J("models"), PLACE = J("placements"), SOURCES = J("sources");
+const B = D.board, comps = D.comps, byIdx = new Map(comps.map(c => [c.i, c]));
+const W = B.w, H = B.h, T = B.thick;
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const params = new URLSearchParams(location.hash.slice(1));
+const SHOT = params.get("shot");
+const root = document.documentElement;
+const savedTheme = SHOT ? "light" : store.get("pcbv-theme"); if (savedTheme) root.dataset.theme = savedTheme;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+const label = c => c.bom?.name || c.cm || c.fp;
+const progress = $("#progress");
+const setProgress = p => { progress.style.width = (p * 100) + "%"; if (p >= 1) setTimeout(() => progress.style.opacity = 0, 500); };
+const b64 = s => Uint8Array.from(atob(s), ch => ch.charCodeAt(0));
+async function gunzipBytes(s) { const st = new Blob([b64(s)]).stream().pipeThrough(new DecompressionStream("gzip")); return new Uint8Array(await new Response(st).arrayBuffer()); }
+const gunzipText = async s => new TextDecoder().decode(await gunzipBytes(s));
+
+/* board-frame (mm, Y up from outline lower-left) helpers */
+const toB = (x, y) => [x - B.x, B.y + B.h - y];
+
+/* ───────── Scene ───────── */
+const canvas = $("#c3d");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: !!SHOT });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+let dirty = true; const requestRender = () => { dirty = true; }; renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.physicallyCorrectLights = false;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, 1, 8000);
+const controls = new THREE.OrbitControls(camera, canvas); controls.enableDamping = true; controls.dampingFactor = .12; controls.screenSpacePanning = true;
+controls.addEventListener("change", () => { dirty = true; });
+scene.add(new THREE.HemisphereLight(0xffffff, 0x3a3a46, .85));
+const key = new THREE.DirectionalLight(0xffffff, .9); key.position.set(-160, 320, 220); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, .35); fill.position.set(220, 120, -200); scene.add(fill);
+const under = new THREE.DirectionalLight(0xffffff, .3); under.position.set(0, -300, 0); scene.add(under);
+const setBg = () => { scene.background = new THREE.Color(getComputedStyle(root).getPropertyValue("--scene-bg").trim() || "#060607"); dirty = true; };
+setBg();
+// Board frame: Z up (mm) -> three Y up, centred.
+const boardFrame = new THREE.Group(); boardFrame.rotation.x = -Math.PI / 2; boardFrame.position.set(-W / 2, 0, H / 2); scene.add(boardFrame);
+
+$("#theme").onclick = () => { const next = root.dataset.theme === "dark" ? "light" : "dark";
+  const apply = () => { root.dataset.theme = next; store.set("pcbv-theme", next); setBg(); updateRing(); requestRender(); };
+  document.startViewTransition ? document.startViewTransition(apply) : apply(); };
+
+function shapeFromSvgPts(pts) { const s = new THREE.Shape(); pts.forEach((p, k) => { const [x, y] = toB(p[0], p[1]); k ? s.lineTo(x, y) : s.moveTo(x, y); }); s.closePath(); return s; }
+
+function svgTexture(frags, keys) {
+  return new Promise(resolve => {
+    const Wp = 4096, Hp = Math.round(Wp * H / W);
+    const css = `.L [fill]:not([fill="none"]){fill:var(--c)} .L [stroke]:not([stroke="none"]){stroke:var(--c)}
+      .L-TOP,.L-BOTTOM{--c:#1f7543} .L-TOPSOLDER,.L-BOTTOMSOLDER{--c:#d9b46a} .L-DRILLS{--c:#060606} .L-TOPOVERLAY{--c:#f2f2ee}`;
+    const body = keys.map(k => `<g class="L L-${k}">${frags[k] || ""}</g>`).join("");
+    const s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${B.x} ${B.y} ${B.w} ${B.h}" width="${Wp}" height="${Hp}"><style>${css}</style><path d="${B.path}" fill="#14532d"/>${body}</svg>`;
+    const url = URL.createObjectURL(new Blob([s], { type: "image/svg+xml" }));
+    const img = new Image();
+    img.onload = () => { const cv = document.createElement("canvas"); cv.width = Wp; cv.height = Hp; cv.getContext("2d").drawImage(img, 0, 0, Wp, Hp); URL.revokeObjectURL(url);
+      const t = new THREE.CanvasTexture(cv); t.anisotropy = renderer.capabilities.getMaxAnisotropy(); t.encoding = THREE.sRGBEncoding; resolve(t); };
+    img.onerror = () => resolve(null); img.src = url;
+  });
+}
+
+async function buildBoard() {
+  const frags = {}; for (const k of Object.keys(LZ)) frags[k] = await gunzipText(LZ[k]);
+  setProgress(.25);
+  const shape = shapeFromSvgPts(B.pts);
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: T, bevelEnabled: false }); geo.translate(0, 0, -T);
+  boardFrame.add(new THREE.Mesh(geo, [new THREE.MeshStandardMaterial({ color: 0x14532d, roughness: .7 }), new THREE.MeshStandardMaterial({ color: 0xcdb98a, roughness: .9 })]));
+  const face = new THREE.ShapeGeometry(shape);
+  { const uv = face.attributes.uv, pos = face.attributes.position; for (let k = 0; k < uv.count; k++) uv.setXY(k, pos.getX(k) / W, pos.getY(k) / H); }
+  const [tTop, tBot] = await Promise.all([svgTexture(frags, ["TOP", "TOPSOLDER", "DRILLS", "TOPOVERLAY"]), svgTexture(frags, ["BOTTOM", "BOTTOMSOLDER", "DRILLS"])]);
+  const top = new THREE.Mesh(face, new THREE.MeshStandardMaterial({ map: tTop, roughness: .55, metalness: .05, polygonOffset: true, polygonOffsetFactor: -2 })); top.position.z = .01; boardFrame.add(top);
+  const bot = new THREE.Mesh(face, new THREE.MeshStandardMaterial({ map: tBot, roughness: .55, side: THREE.BackSide, polygonOffset: true, polygonOffsetFactor: -2 })); bot.position.z = -T - .01; boardFrame.add(bot);
+  setProgress(.5);
+}
+
+/* ───────── Parts: one instanced draw call per model colour ───────── */
+const loader = new THREE.GLTFLoader();
+const parse = buf => new Promise((res, rej) => loader.parse(buf.buffer, "", g => res(g.scene), rej));
+const KIND_COLOR = { relay: 0x1d2026, res: 0x1a1a1a, cap: 0xb59a73, ecap: 0x1e2c4c, ic: 0x1b1b1d, led: 0x5be38a, conn: 0x2e66c4, module: 0x1d6a3b, diode: 0x26262a, ind: 0x3b3b40, tp: 0xd9a441, sw: 0x4a4a50, other: 0x5a5a60 };
+const groupsOf = {};              // model -> [{geo, mat}]
+const instOfComp = new Map();     // comp index -> [{model, m}]
+const extraOf = new Map();        // comp index -> [Mesh] (simple shapes)
+const partBoxes = new Map();      // comp index -> world Box3
+const nnpLayer = [];              // objects hidden when NNP parts are off
+const hl = new THREE.Group(); boardFrame.add(hl);
+const selMat = new THREE.MeshStandardMaterial({ color: 0xf0d48f, emissive: 0x8a6a20, roughness: .45, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
+const matchMat = new THREE.MeshStandardMaterial({ color: 0xd1ae68, emissive: 0x4a3510, roughness: .5, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
+
+function mergeGeos(list) {
+  let nv = 0, ni = 0;
+  for (const g of list) { if (!g.attributes.normal) g.computeVertexNormals(); nv += g.attributes.position.count; ni += g.index ? g.index.count : g.attributes.position.count; }
+  const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), idx = new Uint32Array(ni);
+  let ov = 0, oi = 0;
+  for (const g of list) {
+    const p = g.attributes.position, n = g.attributes.normal;
+    for (let k = 0; k < p.count; k++) { const o = (ov + k) * 3; pos[o] = p.getX(k); pos[o + 1] = p.getY(k); pos[o + 2] = p.getZ(k); nor[o] = n.getX(k); nor[o + 1] = n.getY(k); nor[o + 2] = n.getZ(k); }
+    if (g.index) for (let k = 0; k < g.index.count; k++) idx[oi++] = g.index.getX(k) + ov; else for (let k = 0; k < p.count; k++) idx[oi++] = k + ov;
+    ov += p.count;
+  }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute("position", new THREE.BufferAttribute(pos, 3)); out.setAttribute("normal", new THREE.BufferAttribute(nor, 3)); out.setIndex(new THREE.BufferAttribute(idx, 1));
+  out.computeBoundingBox(); out.computeBoundingSphere(); return out;
+}
+function mergeByColour(proto) {
+  proto.updateMatrixWorld(true);
+  const buckets = new Map();
+  proto.traverse(o => { if (!o.isMesh) return; const m = o.material;
+    const key = m.color.getHexString() + "|" + (m.metalness ?? 0).toFixed(2) + "|" + (m.roughness ?? 1).toFixed(2);
+    if (!buckets.has(key)) buckets.set(key, { mat: m, list: [] });
+    buckets.get(key).list.push(o.geometry.clone().applyMatrix4(o.matrixWorld)); });
+  return [...buckets.values()].map(({ mat, list }) => ({ geo: mergeGeos(list), mat: new THREE.MeshStandardMaterial({ color: mat.color.clone(), metalness: mat.metalness ?? 0, roughness: mat.roughness ?? .6 }) }));
+}
+function placementMatrix(p) {
+  const inner = new THREE.Matrix4();
+  if (p.R) { const q = p.R; inner.set(q[0], q[1], q[2], 0, q[3], q[4], q[5], 0, q[6], q[7], q[8], 0, 0, 0, 0, 1); }
+  else if (p.flip) inner.makeRotationX(Math.PI);
+  return new THREE.Matrix4().makeRotationZ(THREE.MathUtils.degToRad(p.r || 0)).setPosition(p.x, p.y, p.z).multiply(inner);
+}
+const ghost = m => { const g = m.clone(); g.transparent = true; g.opacity = .28; g.depthWrite = false; g.color.lerp(new THREE.Color(0x8a8a8a), .6); return g; };
+
+async function buildParts() {
+  const byModel = new Map(); for (const p of PLACE) { if (!byModel.has(p.m)) byModel.set(p.m, []); byModel.get(p.m).push(p); }
+  const names = [...byModel.keys()]; let n = 0;
+  for (const name of names) {
+    let proto; try { proto = await parse(await gunzipBytes(MODELS[name])); } catch (e) { console.warn("model", name, e); continue; }
+    groupsOf[name] = mergeByColour(proto);
+    for (const isNnp of [false, true]) {
+      const items = byModel.get(name).filter(p => !!byIdx.get(p.i).nnp === isNnp); if (!items.length) continue;
+      const mats = items.map(placementMatrix);
+      items.forEach((p, k) => { if (!instOfComp.has(p.i)) instOfComp.set(p.i, []); instOfComp.get(p.i).push({ model: name, m: mats[k] }); });
+      for (const { geo, mat } of groupsOf[name]) {
+        const im = new THREE.InstancedMesh(geo, isNnp ? ghost(mat) : mat, items.length);
+        mats.forEach((m, k) => im.setMatrixAt(k, m)); im.instanceMatrix.needsUpdate = true; im.frustumCulled = false;
+        boardFrame.add(im); if (isNnp) nnpLayer.push(im);
+      }
+    }
+    setProgress(.5 + .4 * (++n / names.length));
+  }
+  // simple shapes for parts without a model
+  for (const c of comps) {
+    if (instOfComp.has(c.i) || c.k === "hole") continue;
+    for (const s of c.s) {
+      const h = Math.max(s.z1 - s.z0, .1);
+      let mesh;
+      if (c.k !== "tp") mesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shapeFromSvgPts(s.p), { depth: h, bevelEnabled: false }), new THREE.MeshStandardMaterial({ color: KIND_COLOR[c.k] ?? 0x5a5a60, roughness: .6 }));
+      else { const xs = s.p.map(q => toB(q[0], q[1])); const cx = xs.reduce((a, q) => a + q[0], 0) / xs.length, cy = xs.reduce((a, q) => a + q[1], 0) / xs.length;
+        mesh = new THREE.Mesh(new THREE.CylinderGeometry(.9, .9, 2.4, 24).rotateX(Math.PI / 2).translate(cx, cy, 1.2), new THREE.MeshStandardMaterial({ color: 0xd9a441, metalness: .7, roughness: .35 })); }
+      mesh.position.z = s.z0; if (c.nnp) { mesh.material = ghost(mesh.material); nnpLayer.push(mesh); }
+      boardFrame.add(mesh); if (!extraOf.has(c.i)) extraOf.set(c.i, []); extraOf.get(c.i).push(mesh);
+    }
+  }
+  // world-space boxes for picking and the selection ring
+  scene.updateMatrixWorld(true);
+  const bw = boardFrame.matrixWorld;
+  for (const c of comps) {
+    const box = new THREE.Box3();
+    for (const { model, m } of instOfComp.get(c.i) || []) for (const { geo } of groupsOf[model]) box.union(geo.boundingBox.clone().applyMatrix4(m).applyMatrix4(bw));
+    for (const mesh of extraOf.get(c.i) || []) box.expandByObject(mesh);
+    if (!box.isEmpty()) partBoxes.set(c.i, box);
+  }
+  paint();
+}
+
+/* ───────── Camera ───────── */
+const R = Math.hypot(W, H);
+const views = { iso: [-.55 * R, .9 * R, .95 * R], top: [0, 1.75 * R, .001], bottom: [.35 * R, -1.15 * R, .9 * R] };
+let tw = null, flipped = false;
+function tween(toPos, toTgt, anim = true) {
+  if (!anim || matchMedia("(prefers-reduced-motion: reduce)").matches) { camera.position.copy(toPos); controls.target.copy(toTgt); controls.update(); onLanded(); return; }
+  const p0 = camera.position.clone(), g0 = controls.target.clone(), t0 = performance.now();
+  const d0 = p0.distanceTo(g0), d1 = toPos.distanceTo(toTgt), travel = g0.distanceTo(toTgt);
+  const bump = Math.min(.8, travel / Math.max(d0, d1, 1) * .6), dur = 750 + bump * 600;
+  const ease = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+  const dir0 = p0.clone().sub(g0).normalize(), dir1 = toPos.clone().sub(toTgt).normalize();
+  tw = t => { const k = Math.min(1, (t - t0) / dur), e = ease(k);
+    const tgt = g0.clone().lerp(toTgt, e); const dir = dir0.clone().lerp(dir1, e).normalize();
+    const dist = Math.exp(Math.log(d0) + (Math.log(d1) - Math.log(d0)) * e) * (1 + bump * Math.sin(Math.PI * e));
+    controls.target.copy(tgt); camera.position.copy(tgt.clone().add(dir.multiplyScalar(dist)));
+    if (k >= 1) { tw = null; onLanded(); } };
+}
+const view = (name, anim = true) => { hideRing(); tween(new THREE.Vector3(...views[name]), new THREE.Vector3(), anim); };
+$("#fit3d").onclick = () => { flipped = false; view("iso"); };
+$("#top3d").onclick = () => { flipped = false; view("top"); };
+$("#flip3d").onclick = () => { flipped = !flipped; view(flipped ? "bottom" : "iso"); };
+
+/* ───────── Selection ring (screen space) ───────── */
+const ringEl = $("#ring"), ringG = $("#ringG"), ringTag = $("#ringTag"), spot = $("#spot");
+let selC = null, selSphere = null, landedFor = null;
+function updateRing() {
+  if (!selSphere) return;
+  const r = canvas.getBoundingClientRect(), pr = $("#pane3d").getBoundingClientRect();
+  const c = selSphere.center.clone().project(camera);
+  const right = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0).multiplyScalar(selSphere.radius);
+  const e = selSphere.center.clone().add(right).project(camera);
+  const px = (c.x + 1) / 2 * r.width + r.left - pr.left, py = (1 - c.y) / 2 * r.height + r.top - pr.top;
+  const rad = Math.max(Math.hypot((e.x - c.x) / 2 * r.width, (e.y - c.y) / 2 * r.height) * 1.15 + 6, 18);
+  ringG.setAttribute("transform", `translate(${px} ${py}) rotate(-90)`);
+  ringG.querySelectorAll("circle").forEach(el => el.setAttribute("r", rad));
+  ringTag.style.left = px + "px"; ringTag.style.top = (py - rad) + "px";
+  const dark = root.dataset.theme !== "light";
+  spot.style.background = `radial-gradient(circle at ${px}px ${py}px, transparent ${rad + 4}px, ${dark ? "rgba(5,5,6,.5)" : "rgba(246,242,233,.55)"} ${rad + 110}px)`;
+}
+function hideRing() { ringEl.classList.remove("on"); ringTag.classList.remove("on"); spot.classList.remove("on"); }
+function onLanded() { if (!selC || landedFor !== selC.i) return; updateRing(); ringEl.getBoundingClientRect(); ringEl.classList.add("on"); ringTag.classList.add("on"); spot.classList.add("on"); }
+
+let dimSet = null, nnpOn = true;
+function addHighlight(i, mat) {
+  for (const { model, m } of instOfComp.get(i) || []) for (const { geo } of groupsOf[model]) { const h = new THREE.Mesh(geo, mat); h.matrixAutoUpdate = false; h.matrix.copy(m); hl.add(h); }
+  for (const mesh of extraOf.get(i) || []) { const h = new THREE.Mesh(mesh.geometry, mat); h.position.copy(mesh.position); hl.add(h); }
+}
+function paint() {
+  hl.clear();
+  for (const o of nnpLayer) o.visible = nnpOn;
+  if (dimSet) for (const i of dimSet) if (!(selC && selC.i === i) && (nnpOn || !byIdx.get(i).nnp)) addHighlight(i, matchMat);
+  if (selC) addHighlight(selC.i, selMat);
+  requestRender();
+}
+function focusOn(c) {
+  const box = partBoxes.get(c.i) || new THREE.Box3(new THREE.Vector3(-1, 0, -1), new THREE.Vector3(1, 1, 1));
+  selSphere = box.getBoundingSphere(new THREE.Sphere());
+  landedFor = c.i; hideRing();
+  // stay at board level: keep the viewing angle, frame the whole board
+  const home = new THREE.Vector3(...views.iso).length();
+  const dist = camera.position.distanceTo(controls.target);
+  if (controls.target.length() < 4 && Math.abs(dist - home) < home * .2) { requestRender(); requestAnimationFrame(onLanded); return; }
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  tween(dir.multiplyScalar(home), new THREE.Vector3());
+}
+
+/* ───────── List + search (same as 2D) ───────── */
+for (const c of comps) c.hay = [c.d, c.cm, c.fp, c.bom?.name, c.bom?.mpn, c.bom?.mfr, c.bom?.item, c.nnp ? "nnp not populated" : "fitted"].join(" ").toLowerCase();
+let showNNP = true, matches = comps, selected = null, showAllOn = false;
+const listEl = $("#list");
+function renderList() {
+  const q = $("#q").value.trim().toLowerCase(); const toks = q.split(/\s+/).filter(Boolean);
+  matches = comps.filter(c => (showNNP || !c.nnp) && toks.every(t => c.hay.includes(t)));
+  if (q) matches.sort((a, b) => (b.d.toLowerCase() === q) - (a.d.toLowerCase() === q));
+  $("#count").innerHTML = q ? `<b>${matches.length}</b> of ${comps.length} parts` : `${comps.length} parts · ${comps.filter(c => c.nnp).length} NNP`;
+  listEl.innerHTML = matches.length ? matches.map(c => `<button class="item${c.nnp ? " is-nnp" : ""}" role="option" data-i="${c.i}" aria-selected="${selected === c.i}"><span class="des">${esc(c.d)}</span><span class="val">${esc(label(c))}</span>${c.nnp ? '<span class="tag nnp">NNP</span>' : ""}</button>`).join("")
+    : `<div class="empty"><i>No matches</i>Try a designator, value or part number.</div>`;
+  $("#showAll").disabled = !q || !matches.length;
+  if (showAllOn) applyShowAll();
+}
+listEl.addEventListener("click", e => { const b = e.target.closest(".item"); if (b) select(+b.dataset.i, { from: "list" }); });
+let qT = 0; $("#q").addEventListener("input", () => { clearTimeout(qT); qT = setTimeout(() => { if (!$("#q").value.trim()) setShowAll(false); renderList(); }, 60); });
+$("#q").addEventListener("keydown", e => { if (e.key === "Enter" && matches[0]) select(matches[0].i, { from: "list" }); if (e.key === "Escape") { $("#q").value = ""; setShowAll(false); renderList(); } });
+document.addEventListener("keydown", e => { if (e.key === "/" && document.activeElement !== $("#q")) { e.preventDefault(); $("#q").focus(); } });
+function setShowAll(on) { showAllOn = on; $("#showAll").textContent = on ? "Hide all" : "Show all"; applyShowAll(); }
+function applyShowAll() { dimSet = showAllOn ? new Set(matches.map(c => c.i)) : null; paint(); }
+$("#showAll").onclick = () => setShowAll(!showAllOn);
+$("#nnp").onchange = e => { showNNP = e.target.checked; nnpOn = showNNP; if (selected != null && !showNNP && byIdx.get(selected).nnp) select(null); paint(); renderList(); };
+
+function select(i, opts = {}) {
+  selected = i; selC = i == null ? null : byIdx.get(i);
+  listEl.querySelectorAll(".item").forEach(b => b.setAttribute("aria-selected", String(+b.dataset.i === i)));
+  const det = $("#detail");
+  paint();
+  if (!selC) { det.hidden = true; selSphere = null; hideRing(); return; }
+  const c = selC, b = c.bom || {};
+  const src = SOURCES[c.i];
+  const rows = [["Part no.", b.mpn], ["Maker", b.mfr], ["Item ID", b.item], ["PCB value", c.cm], ["Footprint", c.fp], ["Position", `X ${c.xm} · Y ${c.ym} mil`], ["Rotation", `${c.rot}° · ${c.side}`], ["3D model", src]].filter(r => r[1]);
+  det.innerHTML = `<button class="btn-icon close" aria-label="Clear selection" title="Clear selection"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <h2>${esc(c.d)} ${c.nnp ? '<span class="tag nnp">NNP</span>' : '<span class="tag fit">FITTED</span>'}</h2>
+    <div class="name">${esc(b.name || c.cm || "Not in BOM")}</div>
+    <dl>${rows.map(r => `<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join("")}</dl>`;
+  det.querySelector(".close").onclick = () => select(null);
+  det.hidden = false; ringTag.textContent = c.d;
+  focusOn(c);
+  const it = listEl.querySelector(`[data-i="${i}"]`);
+  if (opts.from !== "list" && it && listEl.scrollHeight > listEl.clientHeight + 4) { const top = it.offsetTop - listEl.offsetTop; if (top < listEl.scrollTop || top > listEl.scrollTop + listEl.clientHeight - it.offsetHeight) listEl.scrollTop = top - listEl.clientHeight / 2; }
+}
+
+/* ───────── Picking / hover (cheap: ray vs part boxes) ───────── */
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), hitP = new THREE.Vector3(); let down = null;
+function pick(e) {
+  const r = canvas.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); ray.setFromCamera(ndc, camera);
+  let best = null, bd = Infinity;
+  for (const [i, box] of partBoxes) {
+    if (!nnpOn && byIdx.get(i).nnp) continue;
+    if (ray.ray.intersectBox(box, hitP)) { const d = hitP.distanceTo(ray.ray.origin); if (d < bd - .3 || (Math.abs(d - bd) <= .3 && box.getSize(hitP).lengthSq() < partBoxes.get(best).getSize(new THREE.Vector3()).lengthSq())) { bd = Math.min(bd, d); best = i; } }
+  }
+  return best == null ? null : byIdx.get(best);
+}
+canvas.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; if (tw) tw = null; tip.hidden = true; });
+canvas.addEventListener("pointerup", e => { if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) < 5) { const c = pick(e); if (c) select(c.i, { from: "3d" }); } down = null; });
+let hoverT = 0; const tip = $("#tip3d");
+canvas.addEventListener("pointermove", e => { if (e.buttons) return; clearTimeout(hoverT); hoverT = setTimeout(() => { const c = pick(e);
+  if (!c) { tip.hidden = true; canvas.style.cursor = ""; return; } canvas.style.cursor = "pointer"; const r = $("#pane3d").getBoundingClientRect();
+  tip.innerHTML = `<b>${esc(c.d)}</b>${esc(label(c))}`; tip.style.left = (e.clientX - r.left) + "px"; tip.style.top = (e.clientY - r.top) + "px"; tip.hidden = false; }, 70); });
+canvas.addEventListener("pointerleave", () => { clearTimeout(hoverT); tip.hidden = true; });
+
+function resize() { const r = canvas.getBoundingClientRect(); if (!r.width) return; renderer.setSize(r.width, r.height, false); camera.aspect = r.width / r.height; camera.updateProjectionMatrix(); requestRender(); }
+new ResizeObserver(resize).observe(canvas);
+
+/* ───────── Boot ───────── */
+(async () => {
+  renderList(); setProgress(.05);
+  if (SHOT) { document.body.classList.add("shot"); }
+  resize(); view(SHOT && views[SHOT] ? SHOT : "iso", false);
+  let frames = 0;
+  renderer.setAnimationLoop(t => { if (tw) { tw(t); dirty = true; } if (controls.update()) dirty = true; if (!dirty) return; dirty = false;
+    renderer.render(scene, camera); if (selSphere && ringEl.classList.contains("on")) updateRing(); if (SHOT && ready && ++frames === 3) document.title = "READY"; });
+  let ready = false;
+  await buildBoard(); await buildParts(); ready = true; requestRender();
+  $("#load3d").hidden = true; setProgress(1);
+  const legend = $("#legend3d"); const nModels = new Set(PLACE.map(p => p.i)).size;
+  legend.innerHTML = `<span><b>${nModels}</b> parts with real 3D models</span><span><b>${comps.length - nModels}</b> simple shapes</span>`;
+  const q0 = params.get("q"), s0 = params.get("sel");
+  if (q0) { $("#q").value = q0; renderList(); if (params.has("all")) setShowAll(true); }
+  if (s0) { const c = comps.find(c => c.d.toLowerCase() === s0.toLowerCase()); if (c) select(c.i, {}); }
+})();
+})();
+</script>
+</body>
+</html>

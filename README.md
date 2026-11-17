@@ -7,6 +7,7 @@ Canva, and a mosque website with Urdu and Qur'anic text. Every rule, number and 
 
 | Skill | What it gives Claude |
 |---|---|
+| [`altium-board-viewer`](skills/altium-board-viewer) | Turning an Altium PCB project into a searchable, offline 2D board viewer (HTML), an assembly PDF with an overview and zoomed zone pages, and a 3D viewer with real part models, using wavenumber-eng/altium_monkey: a setup script that checks and installs every requirement (uv, Python 3.12, altium_monkey, cadquery-ocp, three.js) into one deletable cache folder, a `board.json` config, KiCad and free manufacturer model sourcing (no logins), automatic orientation of through-hole parts against real pad positions, and the instancing and render-on-demand changes that keep a 400-part board smooth. Includes the full pipeline scripts and both viewer templates. |
 | [`youtube-english-subtitle-extractor`](skills/youtube-english-subtitle-extractor) | Find a YouTube video by title, use English captions when available, fall back to PaddleOCR on frames, then locally transcribe Urdu audio with the specified Whisper model if no English captions are found. |
 | [`web3d-realism-performance`](skills/web3d-realism-performance) | Making a browser 3D scene (three.js, React Three Fiber, CesiumJS, WebGL) look photorealistic while keeping it fast: a measuring workflow (fixed-pose GPU benchmark, image diff, alternating A/B), draw order and overdraw, batching, shader-chunk patches that skip work, baked lighting with Blender Cycles (lightmaps on a second UV set plus a reflection probe), PBR textures, vegetation impostors and glTF optimisation; CAD-accurate models repeated many times (a light copy everywhere, full detail only in close-up, with measured costs), and sharp CesiumJS rendering on phones; real-place landscapes from elevation data (bounded procedural relief, treeline, shader program variants, matching photographs); and frame-exact demo videos of a live WebGL app (virtual-clock recorder, scripted pointer and punch-in zooms, GPU preflight). Includes the benchmark and recorder scripts and a reference lightmap pipeline. |
 | [`web-ui-motion`](skills/web-ui-motion) | A motion and layout system for websites: timing and easing tokens, entrance and scroll reveals, View Transitions, drawer dialogs, nav pills, honest loaders and micro-interactions, a ready-made plain-JS scroll reveal (staggered, once only, safe without JS), a ready-made morphing bottom dock for phones (a pill of captioned shortcuts that springs open into a More panel), all with reduced-motion support; layouts that fit every viewport without scrolling; HTML overlays and camera flights over a 3D canvas; motion in live apps that poll or stream (an AI chat's launcher morph, loading avatar and Send/Stop); browser-test traps that let motion tests pass without testing anything; and a licence-checked review of twelve UI and motion sources. Includes a CSS template, React helpers and a Playwright layout test. |
@@ -26,7 +27,7 @@ git clone https://github.com/saad-git-007/claude-skills.git
 mkdir -p ~/.claude/skills
 cp -r claude-skills/skills/web3d-realism-performance claude-skills/skills/web-ui-motion claude-skills/skills/web-ui-surfaces \
   claude-skills/skills/canva-poster-rebuild claude-skills/skills/urdu-arabic-web-text \
-  claude-skills/skills/youtube-english-subtitle-extractor ~/.claude/skills/
+  claude-skills/skills/youtube-english-subtitle-extractor claude-skills/skills/altium-board-viewer ~/.claude/skills/
 ```
 
 For a single project, use `<project>/.claude/skills/` instead.
@@ -42,8 +43,8 @@ Claude loads a skill by itself when a request matches its description; you can a
 skills/<name>/
 ├── SKILL.md       instructions and the when-to-use description (always read first)
 ├── references/    detail Claude reads when the task needs it
-├── scripts/       runnable tools and reference implementations   (web3d-realism-performance, canva-poster-rebuild, urdu-arabic-web-text)
-└── assets/        templates to copy into a project               (web-ui-motion, web-ui-surfaces, urdu-arabic-web-text)
+├── scripts/       runnable tools and reference implementations   (web3d-realism-performance, canva-poster-rebuild, urdu-arabic-web-text, altium-board-viewer)
+└── assets/        templates to copy into a project               (web-ui-motion, web-ui-surfaces, urdu-arabic-web-text, altium-board-viewer)
 ```
 
 The scripts and templates come from those projects. Read them as worked examples and adapt the app hooks, selectors

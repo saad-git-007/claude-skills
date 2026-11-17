@@ -1,0 +1,38 @@
+{
+  "name": "My_Board_REV1",
+  "title": "My Board",
+  "rev": "REV1",
+  "project": "Altium/My_Board.PrjPcb",
+  "bom": "My_Board_BOM.xlsx",
+  "bom_columns": {"item": 0, "name": 1, "mpn": 2, "mfr": 3, "refs": 6},
+  "bom_header_rows": 2,
+  "nnp_marker": "NNP",
+  "bom_alias": {"MDLE1": "Raspberry Pi Connector"},
+  "pnp": "Outputs/Pick Place for My_Board.csv",
+  "pnp_comment_col": 10,
+  "board_thickness": 1.6,
+  "out_dir": "board_viewer",
+  "work_dir": "~/.cache/altium-board-viewer",
+
+  "kicad_rules": [
+    ["U", "(?i)SOIC-16", "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm"]
+  ],
+  "maker_map": {
+    "AZ943_FORM-C": "AZ943-1CH-5DE",
+    "TB003-500_-_2-PIN": "TB008A-508-02BE",
+    "NID100": "NID100-5"
+  },
+  "maker_urls": {
+    "NID100-5": "https://www.meanwell.com/upload/pdf/NID100/NID100-3D.zip",
+    "AZ943-1CH-5DE": "https://raw.githubusercontent.com/GeorgeIoak/3D_Component_Models/master/Relay%20-%20Zettler%20-%20AZ943.step"
+  },
+  "maker_sources": {
+    "TB008A-508-02BE": "Same Sky (manufacturer)",
+    "NID100-5": "Mean Well (manufacturer)",
+    "AZ943-1CH-5DE": "Community model (GitHub)"
+  },
+  "rot_override": {"J16": 180},
+  "stacked": [
+    {"footprint": "^RASPBERRY", "step": "Raspberry-Pi-4-Model-B.step", "source": "Raspberry Pi 4: CC0 community model"}
+  ]
+}
